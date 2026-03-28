@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body class="login-page">
+
+<div class="login-wrapper">
+    <div class="project-title">Hospi<span>TraX</span></div>
+
+    <div class="form-box">
+        <h2>Register</h2>
+
+        <form action="/auth/register" method="POST">
+
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+
+            <select name="role" id="role" required onchange="toggleFields()">
+                <option value="">Select Role</option>
+                <option value="patient">Patient</option>
+                <option value="doctor">Doctor</option>
+                <option value="admin">Admin</option>
+            </select>
+
+            <!-- PATIENT FIELDS -->
+            <div id="patientFields" style="display:none;">
+                <input type="number" name="age" placeholder="Age">
+                <input type="text" name="gender" placeholder="Gender">
+            </div>
+
+            <!-- DOCTOR FIELDS -->
+            <div id="doctorFields" style="display:none;">
+                <input type="text" name="specialization" placeholder="Specialization">
+                <input type="text" name="availability" placeholder="Availability">
+            </div>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <a href="/login">Already have an account? Login</a>
+    </div>
+</div>
+
+<script>
+function toggleFields() {
+    const role = document.getElementById("role").value;
+
+    document.getElementById("patientFields").style.display =
+        role === "patient" ? "block" : "none";
+
+    document.getElementById("doctorFields").style.display =
+        role === "doctor" ? "block" : "none";
+}
+</script>
+
+</body>
+</html>

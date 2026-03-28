@@ -1,0 +1,210 @@
+/* ================= RESET ================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* ================= DEFAULT BODY (Dashboard Pages) ================= */
+body {
+    background: #f4f6f9;
+}
+
+/* ================= LOGIN PAGE ================= */
+.login-page {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: url('/images/background.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+/* Wrapper for login */
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Project Title */
+.project-title {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 20px;
+}
+
+.project-title span {
+    color: #00bcd4;
+}
+
+/* ================= FORM ================= */
+.form-box {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    width: 350px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.2);
+}
+
+.form-box h2 {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.form-box input,
+.form-box select,
+.form-box textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Buttons */
+.form-box button,
+button {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    border: none;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.form-box button:hover,
+button:hover {
+    background: #0056b3;
+}
+
+/* Links */
+.form-box a {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.form-box a:hover {
+    text-decoration: underline;
+}
+
+/* ================= DASHBOARD LAYOUT ================= */
+.container {
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 250px;
+    background: #1e2a38;
+    color: white;
+    height: 100vh;
+    padding: 20px;
+    position: fixed;
+}
+
+.sidebar h2 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 10px;
+    margin: 8px 0;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+.sidebar a:hover {
+    background: #007bff;
+}
+
+/* Main Content */
+.main {
+    margin-left: 250px;
+    padding: 20px;
+    width: 100%;
+}
+
+/* Header */
+.header {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* ================= CARDS ================= */
+.cards {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.card {
+    flex: 1;
+    min-width: 200px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* ================= TABLE ================= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+}
+
+table th,
+table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+}
+
+table th {
+    background: #007bff;
+    color: white;
+}
+
+/* ================= QUEUE ================= */
+.queue-box {
+    font-size: 22px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+/* ================= EMERGENCY ================= */
+.emergency {
+    color: red;
+    font-weight: bold;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 200px;
+    }
+
+    .main {
+        margin-left: 200px;
+    }
+
+    .cards {
+        flex-direction: column;
+    }
+}
+
+

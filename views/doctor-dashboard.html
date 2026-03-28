@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <h2>HospiTraX</h2>
+        <a href="/doctor">Dashboard</a>
+        <a href="#">Patient Queue</a>
+        <a href="#">Prescriptions</a>
+        <a href="/login">Logout</a>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="main">
+
+        <div class="header">
+            <h2>Doctor Dashboard</h2>
+        </div>
+
+        <!-- CARDS -->
+        <div class="cards">
+            <div class="card">
+                <h3>Today's Patients</h3>
+                <p>18</p>
+            </div>
+        </div>
+
+        <!-- QUEUE TABLE -->
+        <h3>Patient Queue</h3>
+        <table>
+            <tr>
+                <th>Queue</th>
+                <th>Patient</th>
+                <th>Priority</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Rahim</td>
+                <td class="emergency">Emergency</td>
+            </tr>
+        </table>
+
+        <!-- PRESCRIPTION FORM -->
+        <div class="form-box">
+            <h3>Update Prescription</h3>
+            <form action="/doctor/prescription" method="POST">
+                <input type="text" name="appointment_id" placeholder="Appointment ID" required>
+                <textarea name="details" placeholder="Prescription details" required></textarea>
+                <button type="submit">Submit</button>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Patient Dashboard | HospiTraX</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+
+        .booking-doctors-row {
+            display: flex;
+            gap: 24px;
+            margin-top: 24px;
+            align-items: flex-start;
+        }
+
+        .form-box {
+            flex: 0 0 300px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+
+        .form-box h3 { margin-bottom: 14px; }
+
+        .form-box input,
+        .form-box select {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-box button {
+            width: 100%;
+            padding: 10px;
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .form-box button:hover { background: #1558a8; }
+
+        /* Doctors panel */
+        .doctors-section { flex: 1; min-width: 0; }
+        .doctors-section h3 { margin-bottom: 12px; }
+
+        .doctors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 14px;
+        }
+
+        .doctor-card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .doctor-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        .doc-name  { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+        .doc-id    { font-size: 12px; color: #999; margin-bottom: 8px; }
+        .doc-spec  { font-size: 13px; color: #444; margin-bottom: 10px; }
+        .doc-avail-label {
+            font-size: 11px; font-weight: 700;
+            text-transform: uppercase; color: #888; margin-bottom: 4px;
+        }
+        .doc-avail-schedule {
+            font-size: 12px; color: #2e7d32; background: #e8f5e9;
+            border-radius: 6px; padding: 6px 8px;
+            line-height: 1.7; white-space: pre-wrap; word-break: break-word;
+        }
+
+        /* FEATURE 4 & 5: Medical Records & Lab Report section */
+        .medical-section {
+            margin-top: 32px;
+        }
+
+        .medical-section h3 { margin-bottom: 12px; }
+
+        .upload-box {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            margin-bottom: 20px;
+            max-width: 420px;
+        }
+
+        .upload-box input[type="file"] {
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+
+        .upload-box button {
+            padding: 8px 18px;
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .upload-box button:hover { background: #1558a8; }
+
+        .upload-msg {
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .records-table th, .records-table td {
+            border: 1px solid #e0e0e0;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        .records-table th { background: #1976d2; color: #fff; }
+        .records-table tr:nth-child(even) { background: #f5f5f5; }
+
+        .records-table a {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .records-table a:hover { text-decoration: underline; }
+
+        .doctors-loading, .doctors-error { font-size: 14px; color: #888; }
+        .doctors-error { color: #c62828; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="sidebar">
+        <h2>HospiTraX</h2>
+        <a href="/login">Logout</a>
+    </div>
+
+    <div class="main">
+
+        <div class="header">
+            <h2>Patient Dashboard</h2>
+        </div>
+
+        <!-- FEATURE 2 & 3: LIVE QUEUE + ESTIMATED TIME CARDS -->
+        <div class="cards">
+            <div class="card">
+                <h3>Queue Number</h3>
+                <p class="queue-box" id="queueNumber">--</p>
+            </div>
+            <div class="card">
+                <h3>Estimated Wait</h3>
+                <p id="estimatedTime">--</p>
+            </div>
+        </div>
+
+        <!-- FEATURE 1: MY APPOINTMENTS TABLE -->
+        <h3>My Appointments</h3>
+        <table id="appointmentsTable">
+            <tr>
+                <th>Doctor</th>
+                <th>Specialization</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Queue</th>
+                <th>Priority</th>
+                <th>Action</th>
+            </tr>
+        </table>
+
+        <!-- FEATURE 1: BOOKING FORM + DOCTORS LIST SIDE BY SIDE -->
+        <div class="booking-doctors-row">
+
+            <div class="form-box">
+                <h3>Book Appointment</h3>
+                <!-- patientId auto-filled from sessionStorage/URL — never shown to user -->
+                <input type="hidden" id="patient_id">
+                <input type="number" id="doctor_id" placeholder="Doctor ID">
+                <input type="date" id="date">
+                <input type="time" id="time">
+                <select id="priority">
+                    <option value="normal">Normal</option>
+                    <option value="emergency">Emergency</option>
+                </select>
+                <button onclick="bookAppointment()">Book</button>
+                <p id="bookingError" style="color:red;font-size:13px;margin-top:8px;display:none;"></p>
+            </div>
+
+            <div class="doctors-section">
+                <h3>Available Doctors</h3>
+                <div class="doctors-grid" id="doctorsGrid">
+                    <p class="doctors-loading">Loading doctors...</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- FEATURE 4 & 5: MEDICAL RECORDS + LAB REPORT UPLOAD -->
+        <div class="medical-section">
+            <h3>Medical Records & Lab Reports</h3>
+
+            <!-- FEATURE 5: Upload lab report -->
+            <div class="upload-box">
+                <h4 style="margin-bottom:10px;">Upload Lab Report</h4>
+                <input type="file" id="labReportFile" accept=".pdf,.jpg,.jpeg,.png">
+                <br>
+                <button onclick="uploadLabReport()">Upload</button>
+                <p class="upload-msg" id="uploadMsg"></p>
+            </div>
+
+            <!-- FEATURE 4: Medical records table -->
+            <table class="records-table" id="recordsTable">
+                <tr>
+                    <th>#</th>
+                    <th>File Name</th>
+                    <th>Date Uploaded</th>
+                    <th>View</th>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+
+/* ─────────────────────────────────────────────
+   PATIENT ID — read from URL first, then sessionStorage
+   This prevents the redirect-back-to-login bug
+   ───────────────────────────────────────────── */
+function getPatientId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromUrl = urlParams.get("patientId");
+    if (fromUrl) {
+        sessionStorage.setItem("patientId", fromUrl);
+        return fromUrl;
+    }
+    return sessionStorage.getItem("patientId");
+}
+
+const PATIENT_ID = getPatientId();
+
+if (!PATIENT_ID) {
+    window.location.href = "/login";
+}
+
+document.getElementById("patient_id").value = PATIENT_ID;
+
+
+/* ─────────────────────────────────────────────
+   FEATURE 1 + 2 + 3: LOAD APPOINTMENTS
+   Shows table, updates queue card and estimated time card
+   MERGE FIX: handles plain array [] (our format) and
+   also { success, appointments: [] } (teammate format)
+   ───────────────────────────────────────────── */
+function loadAppointments() {
+    fetch(`/appointments/patient/${PATIENT_ID}`)
+        .then(res => {
+            if (!res.ok) throw new Error("Server error: " + res.status);
+            return res.json();
+        })
+        .then(response => {
+            // MERGE FIX: normalise both response shapes into a plain array
+            const data = Array.isArray(response)
+                ? response
+                : (response.appointments || []);
+
+            const table = document.getElementById("appointmentsTable");
+            table.innerHTML = `
+                <tr>
+                    <th>Doctor</th>
+                    <th>Specialization</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Queue</th>
+                    <th>Priority</th>
+                    <th>Action</th>
+                </tr>
+            `;
+
+            if (data.length === 0) {
+                table.innerHTML += `
+                    <tr>
+                        <td colspan="7" style="text-align:center;color:#888;padding:14px;">
+                            No upcoming appointments
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            data.forEach(app => {
+                const doctorLabel = app.doctor_name || `Doctor #${app.doctor_id}`;
+                const dateStr     = app.date ? new Date(app.date).toLocaleDateString() : "--";
+                const priority    = app.priority || "normal";
+                const priorityBadge = priority === "emergency"
+                    ? `<span style="color:#c62828;font-weight:700;">🚨 Emergency</span>`
+                    : `<span style="color:#555;">Normal</span>`;
+
+                table.innerHTML += `
+                    <tr>
+                        <td>${doctorLabel}</td>
+                        <td>${app.specialization || "--"}</td>
+                        <td>${dateStr}</td>
+                        <td>${app.status}</td>
+                        <td>${app.queue_number}</td>
+                        <td>${priorityBadge}</td>
+                        <td><button onclick="cancelAppointment(${app.id})">Cancel</button></td>
+                    </tr>
+                `;
+            });
+
+            // FEATURE 2: Update live queue card from first upcoming appointment
+            document.getElementById("queueNumber").innerText = data[0].queue_number || "--";
+
+            // FEATURE 3: Estimated waiting time
+            const estTime = data[0].estimated_waiting_time ?? data[0].estimated_time;
+            document.getElementById("estimatedTime").innerText =
+                estTime != null ? estTime + " mins" : "--";
+        })
+        .catch(err => console.error("loadAppointments error:", err));
+}
+
+
+/* ─────────────────────────────────────────────
+   FEATURE 1: BOOK APPOINTMENT
+   MERGE FIX: response now has both flat fields
+   (queueNumber, estimatedWaitingTime) and nested
+   appointment object — dashboard reads flat fields
+   ───────────────────────────────────────────── */
+function bookAppointment() {
+    const errBox = document.getElementById("bookingError");
+    errBox.style.display = "none";
+
+    const data = {
+        patient_id: PATIENT_ID,
+        doctor_id:  document.getElementById("doctor_id").value,
+        date:       document.getElementById("date").value,
+        time:       document.getElementById("time").value,
+        priority:   document.getElementById("priority").value
+    };
+
+    if (!data.doctor_id || !data.date || !data.time) {
+        errBox.innerText = "Please fill in all fields.";
+        errBox.style.display = "block";
+        return;
+    }
+
+    fetch("/appointments/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(result => {
+        // handle both error shapes
+        if (result.error || result.success === false) {
+            errBox.innerText = result.error || result.message || "Booking failed.";
+            errBox.style.display = "block";
+            return;
+        }
+        const qNum  = result.queueNumber  ?? result.appointment?.queue_number;
+        const eWait = result.estimatedWaitingTime ?? result.appointment?.estimated_waiting_time;
+        const msg   = data.priority === "emergency"
+            ? `🚨 Emergency Booked!\nYou are #1 in the queue.`
+            : `✅ Appointment Booked!\nQueue Number: ${qNum}\nEstimated Wait: ${eWait} mins`;
+        alert(msg);
+        loadAppointments();
+    })
+    .catch(err => {
+        errBox.innerText = "Booking failed. Please try again.";
+        errBox.style.display = "block";
+        console.error(err);
+    });
+}
+
+
+/* ─────────────────────────────────────────────
+   CANCEL APPOINTMENT
+   ───────────────────────────────────────────── */
+function cancelAppointment(id) {
+    if (!confirm("Cancel this appointment?")) return;
+
+    fetch(`/appointments/cancel/${id}`, { method: "PUT" })
+        .then(res => res.json())
+        .then(result => {
+            if (result.error) { alert(result.error); return; }
+            alert("Appointment cancelled.");
+            loadAppointments();
+        })
+        .catch(err => console.error(err));
+}
+
+
+/* ─────────────────────────────────────────────
+   LOAD DOCTORS LIST
+   ───────────────────────────────────────────── */
+function loadDoctors() {
+    const grid = document.getElementById("doctorsGrid");
+
+    fetch("/doctor/list")
+        .then(res => {
+            if (!res.ok) throw new Error("Failed to fetch");
+            return res.json();
+        })
+        .then(doctors => {
+            if (!doctors || doctors.length === 0) {
+                grid.innerHTML = `<p class="doctors-error">No doctors found.</p>`;
+                return;
+            }
+
+            grid.innerHTML = "";
+
+            doctors.forEach(doc => {
+                const raw = doc.availability || "Not specified";
+                const formatted = raw
+                    .replace(/(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(?=\s*:)/g, '\n$1')
+                    .trim();
+
+                grid.innerHTML += `
+                    <div class="doctor-card">
+                        <div class="doc-name">${doc.name}</div>
+                        <div class="doc-id">ID: ${doc.id}</div>
+                        <div class="doc-spec">🩺 ${doc.specialization}</div>
+                        <div class="doc-avail-label">🕐 Schedule</div>
+                        <div class="doc-avail-schedule">${formatted}</div>
+                    </div>
+                `;
+            });
+        })
+        .catch(err => {
+            grid.innerHTML = `<p class="doctors-error">Could not load doctors.</p>`;
+            console.error(err);
+        });
+}
+
+
+/* ─────────────────────────────────────────────
+   FEATURE 5: UPLOAD LAB REPORT
+   Sends file to /api/upload-report (teammate's medicalRoutes)
+   ───────────────────────────────────────────── */
+function uploadLabReport() {
+    const fileInput = document.getElementById("labReportFile");
+    const msg       = document.getElementById("uploadMsg");
+    msg.style.color = "#555";
+    msg.innerText   = "";
+
+    if (!fileInput.files || fileInput.files.length === 0) {
+        msg.style.color = "red";
+        msg.innerText = "Please select a file first.";
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("report", fileInput.files[0]);
+    formData.append("patient_id", PATIENT_ID);
+
+    fetch("/api/upload-report", {
+        method: "POST",
+        body: formData
+    })
+    .then(res => res.json())
+    .then(result => {
+        if (result.error || result.success === false) {
+            msg.style.color = "red";
+            msg.innerText = result.error || result.message || "Upload failed.";
+            return;
+        }
+        msg.style.color = "#2e7d32";
+        msg.innerText = "✅ Lab report uploaded successfully!";
+        fileInput.value = "";
+        loadMedicalRecords();
+    })
+    .catch(err => {
+        msg.style.color = "red";
+        msg.innerText = "Upload failed. Please try again.";
+        console.error(err);
+    });
+}
+
+
+/* ─────────────────────────────────────────────
+   FEATURE 4: LOAD MEDICAL RECORDS
+   Fetches stored records from /api/medical-records
+   ───────────────────────────────────────────── */
+function loadMedicalRecords() {
+    fetch(`/api/medical-records?patient_id=${PATIENT_ID}`)
+        .then(res => res.json())
+        .then(response => {
+            const records = Array.isArray(response)
+                ? response
+                : (response.records || []);
+
+            const table = document.getElementById("recordsTable");
+            table.innerHTML = `
+                <tr>
+                    <th>#</th>
+                    <th>File Name</th>
+                    <th>Date Uploaded</th>
+                    <th>View</th>
+                </tr>
+            `;
+
+            if (records.length === 0) {
+                table.innerHTML += `
+                    <tr>
+                        <td colspan="4" style="text-align:center;color:#888;padding:12px;">
+                            No records uploaded yet
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            records.forEach((rec, i) => {
+                const uploadedDate = rec.created_at
+                    ? new Date(rec.created_at).toLocaleDateString()
+                    : "--";
+                table.innerHTML += `
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${rec.file_name || rec.filename || "Report"}</td>
+                        <td>${uploadedDate}</td>
+                        <td><a href="/uploads/${rec.file_path || rec.filename}" target="_blank">View 📄</a></td>
+                    </tr>
+                `;
+            });
+        })
+        .catch(err => console.error("loadMedicalRecords error:", err));
+}
+
+
+/* ─────────────────────────────────────────────
+   AUTO LOAD on page open
+   ───────────────────────────────────────────── */
+loadAppointments();
+loadDoctors();
+loadMedicalRecords();
+
+</script>
+
+</body>
+</html>
