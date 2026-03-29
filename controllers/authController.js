@@ -23,11 +23,9 @@ exports.register = async (req, res) => {
                     if (role === "patient") {
                         await Patient.create({ user_id: userId, age, gender });
                     }
-
                     if (role === "doctor") {
                         await Doctor.create({ user_id: userId, specialization, availability });
                     }
-
                     res.redirect("/login");
                 } catch (err) {
                     res.send("Role data insertion failed");
@@ -41,7 +39,6 @@ exports.register = async (req, res) => {
 
 
 /* ================= LOGIN ================= */
-// FIX: Returns JSON instead of res.redirect() so the fetch() in login.html works correctly
 exports.login = (req, res) => {
     const { email, password } = req.body;
 
@@ -53,33 +50,42 @@ exports.login = (req, res) => {
         const match = await bcrypt.compare(password, user.password);
         if (!match) return res.status(401).json({ error: "Wrong password" });
 
-        // Role-based JSON response
         if (user.role === "patient") {
             db.query(
                 "SELECT id FROM patients WHERE user_id = ?",
                 [user.id],
                 (err, patientResult) => {
-                    if (err || patientResult.length === 0) {
+                    if (err || patientResult.length === 0)
                         return res.status(404).json({ error: "Patient not found" });
-                    }
 
-                    const patientId = patientResult[0].id;
-
-                    // FIX: Send JSON back so login.html fetch() can read it and redirect
                     return res.json({
                         success: true,
                         role: user.role,
                         userId: user.id,
-                        patientId: patientId
+                        patientId: patientResult[0].id
                     });
                 }
             );
+
         } else if (user.role === "doctor") {
-            return res.json({
-                success: true,
-                role: user.role,
-                userId: user.id
-            });
+            // FIX: Also return doctorId so login.html can store it in sessionStorage
+            // and doctor-dashboard can use it without an extra fetch
+            db.query(
+                "SELECT id FROM doctors WHERE user_id = ?",
+                [user.id],
+                (err, doctorResult) => {
+                    if (err || doctorResult.length === 0)
+                        return res.status(404).json({ error: "Doctor not found" });
+
+                    return res.json({
+                        success: true,
+                        role: user.role,
+                        userId: user.id,
+                        doctorId: doctorResult[0].id
+                    });
+                }
+            );
+
         } else {
             return res.json({
                 success: true,

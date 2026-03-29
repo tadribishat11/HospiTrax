@@ -1,22 +1,20 @@
 const express = require("express");
 const router = express.Router();
 const appointmentController = require("../controllers/appointmentController");
-const db = require("../config/db"); // MERGE FIX: teammate's new routes use db but never imported it
+const db = require("../config/db");
+
+// FIX: Your db.js uses createConnection, not createPool.
+// createConnection does NOT support getConnection() or transactions.
+// All routes below use db.promise().query() directly which works with createConnection.
 
 // =============================================================
 // FEATURE 1: APPOINTMENT BOOKING
-// MERGE FIX: Teammate renamed POST / but dashboard fetches /appointments/book
-// Kept the /book path and used teammate's improved transaction-based logic
 // =============================================================
 router.post("/book", async (req, res) => {
-    const conn = await db.promise().getConnection();
     try {
-        await conn.beginTransaction();
-
         const { patient_id, doctor_id, date, time, priority } = req.body;
 
         if (!patient_id || !doctor_id || !date || !time) {
-            await conn.release();
             return res.status(400).json({ error: "patient_id, doctor_id, date and time are required." });
         }
 
@@ -24,8 +22,8 @@ router.post("/book", async (req, res) => {
         let assignedQueueNumber;
 
         if (isEmergency) {
-            // FEATURE 1: Emergency Priority — shift all existing queue numbers up by 1
-            await conn.query(
+            // Shift all existing active appointments up by 1
+            await db.promise().query(
                 `UPDATE appointments
                  SET queue_number = queue_number + 1
                  WHERE doctor_id = ? AND date = ?
@@ -33,8 +31,8 @@ router.post("/book", async (req, res) => {
                 [doctor_id, date]
             );
 
-            // Keep queue_status table in sync
-            await conn.query(
+            // Keep queue_status in sync
+            await db.promise().query(
                 `UPDATE queue_status
                  SET current_queue_number = current_queue_number + 1
                  WHERE doctor_id = ? AND date = ?`,
@@ -42,9 +40,10 @@ router.post("/book", async (req, res) => {
             );
 
             assignedQueueNumber = 1;
+
         } else {
-            // Normal booking — get next available queue number
-            const [[queueRow]] = await conn.query(
+            // Normal booking — get next queue number
+            const [[queueRow]] = await db.promise().query(
                 `SELECT COALESCE(MAX(queue_number), 0) + 1 AS next_queue
                  FROM appointments
                  WHERE doctor_id = ? AND date = ?
@@ -54,16 +53,16 @@ router.post("/book", async (req, res) => {
             assignedQueueNumber = queueRow.next_queue;
         }
 
-        // FEATURE 3: Estimated waiting time = queue position × avg consultation time
-        const [[doctorRow]] = await conn.query(
+        // Get doctor's avg consultation time for estimated wait
+        const [[doctorRow]] = await db.promise().query(
             `SELECT average_consultation_time FROM doctors WHERE id = ?`,
             [doctor_id]
         );
-        const avgTime = doctorRow ? doctorRow.average_consultation_time : 15;
+        const avgTime = (doctorRow && doctorRow.average_consultation_time) || 15;
         const estimatedWait = (assignedQueueNumber - 1) * avgTime;
 
         // Insert the appointment
-        const [result] = await conn.query(
+        const [result] = await db.promise().query(
             `INSERT INTO appointments
                 (patient_id, doctor_id, date, time, status, priority, queue_number, estimated_waiting_time)
              VALUES (?, ?, ?, ?, 'scheduled', ?, ?, ?)`,
@@ -73,25 +72,20 @@ router.post("/book", async (req, res) => {
         );
 
         // Upsert queue_status for this doctor+date
-        await conn.query(
+        await db.promise().query(
             `INSERT INTO queue_status (doctor_id, date, current_queue_number)
              VALUES (?, ?, ?)
              ON DUPLICATE KEY UPDATE last_updated = CURRENT_TIMESTAMP`,
             [doctor_id, date, assignedQueueNumber]
         );
 
-        await conn.commit();
-
-        // MERGE FIX: Return both formats so dashboard alert works correctly
         return res.status(201).json({
             success: true,
             message: isEmergency
                 ? "Emergency appointment booked. You are at the front of the queue."
                 : "Appointment booked successfully.",
-            // flat fields for dashboard alert
             queueNumber: assignedQueueNumber,
             estimatedWaitingTime: estimatedWait,
-            // nested for any other consumers
             appointment: {
                 id: result.insertId,
                 queue_number: assignedQueueNumber,
@@ -101,19 +95,13 @@ router.post("/book", async (req, res) => {
         });
 
     } catch (err) {
-        await conn.rollback();
         console.error("Book appointment error:", err);
         return res.status(500).json({ error: "Server error while booking appointment." });
-    } finally {
-        conn.release();
     }
 });
 
 // =============================================================
-// FEATURE 2: LIVE QUEUE NUMBER on patient dashboard
-// MERGE FIX: Teammate changed param to :patientId and response to
-// { success, appointments:[] } — updated dashboard to match, kept
-// original :patient_id path so both work
+// GET PATIENT APPOINTMENTS
 // =============================================================
 router.get("/patient/:patient_id", async (req, res) => {
     try {
@@ -126,7 +114,6 @@ router.get("/patient/:patient_id", async (req, res) => {
              ORDER BY a.date DESC, a.queue_number ASC`,
             [req.params.patient_id]
         );
-        // MERGE FIX: Return plain array so patient-dashboard loadAppointments() works
         return res.json(rows);
     } catch (err) {
         console.error("Get patient appointments error:", err);
@@ -135,22 +122,22 @@ router.get("/patient/:patient_id", async (req, res) => {
 });
 
 // =============================================================
-// FEATURE 2 & 3: LIVE QUEUE STATUS (estimated wait, queue position)
+// LIVE QUEUE STATUS
 // =============================================================
 router.get("/live-queue/:patient_id", appointmentController.getLiveQueueStatus);
 
 // =============================================================
-// Cancel appointment
+// CANCEL APPOINTMENT
 // =============================================================
 router.put("/cancel/:id", appointmentController.cancelAppointment);
 
 // =============================================================
-// Update appointment status (doctor use)
+// UPDATE APPOINTMENT STATUS (doctor use — Start / Done buttons)
 // =============================================================
 router.put("/status/:id", appointmentController.updateAppointmentStatus);
 
 // =============================================================
-// Doctor's today queue — teammate's improved version with patient info
+// DOCTOR'S TODAY QUEUE
 // =============================================================
 router.get("/doctor/:doctorId", async (req, res) => {
     try {
@@ -174,7 +161,7 @@ router.get("/doctor/:doctorId", async (req, res) => {
     }
 });
 
-// Keep old doctor-queue route as alias so existing doctor dashboard still works
+// Keep old route as alias so existing code still works
 router.get("/doctor-queue/:doctor_id", appointmentController.getDoctorTodayQueue);
 
 module.exports = router;

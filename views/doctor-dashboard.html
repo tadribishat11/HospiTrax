@@ -1,10 +1,227 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Doctor Dashboard</title>
+    <title>Doctor Dashboard | HospiTraX</title>
     <link rel="stylesheet" href="/css/style.css">
-</head>
+    <style>
 
+        /* ── Stats cards row ── */
+        .cards {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px 28px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            min-width: 160px;
+            text-align: center;
+        }
+
+        .card h3 {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1976d2;
+        }
+
+        /* ── Section boxes ── */
+        .section-box {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            margin-bottom: 28px;
+        }
+
+        .section-box h3 {
+            margin-bottom: 14px;
+            font-size: 16px;
+        }
+
+        /* ── Tables ── */
+        .dash-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .dash-table th {
+            background: #1976d2;
+            color: #fff;
+            padding: 10px 12px;
+            text-align: left;
+        }
+
+        .dash-table td {
+            padding: 9px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .dash-table tr:last-child td { border-bottom: none; }
+        .dash-table tr:nth-child(even) td { background: #fafafa; }
+
+        /* Priority badges */
+        .badge-emergency {
+            background: #fdecea;
+            color: #c62828;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        .badge-normal {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+        }
+
+        /* Status badges */
+        .status-scheduled  { color: #1976d2; font-weight: 600; }
+        .status-in-progress { color: #f57c00; font-weight: 600; }
+        .status-completed  { color: #2e7d32; font-weight: 600; }
+        .status-cancelled  { color: #c62828; font-weight: 600; }
+
+        /* ── Prescription form ── */
+        .form-box {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            margin-bottom: 28px;
+            max-width: 480px;
+        }
+
+        .form-box h3 { margin-bottom: 14px; }
+
+        .form-box input,
+        .form-box textarea,
+        .form-box select {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-box textarea { height: 90px; resize: vertical; }
+
+        .form-box button {
+            padding: 9px 20px;
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .form-box button:hover { background: #1558a8; }
+
+        .form-msg {
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        /* ── Ratings / reviews ── */
+        .ratings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .rating-card {
+            background: #f9f9f9;
+            border: 1px solid #e8e8e8;
+            border-radius: 8px;
+            padding: 12px 16px;
+        }
+
+        .rating-card .rc-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .rating-card .rc-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #1a1a2e;
+        }
+
+        .rating-card .stars {
+            color: #f9a825;
+            font-size: 16px;
+            letter-spacing: 2px;
+        }
+
+        .rating-card .rc-comment {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .no-data {
+            color: #aaa;
+            font-size: 13px;
+            padding: 10px 0;
+        }
+
+        /* ── Availability update ── */
+        .avail-box {
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+            margin-bottom: 28px;
+            max-width: 480px;
+        }
+
+        .avail-box h3 { margin-bottom: 10px; }
+        .avail-box input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        .avail-box button {
+            padding: 9px 20px;
+            background: #388e3c;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .avail-box button:hover { background: #2e7d32; }
+
+    </style>
+</head>
 <body>
 
 <div class="container">
@@ -12,55 +229,429 @@
     <!-- SIDEBAR -->
     <div class="sidebar">
         <h2>HospiTraX</h2>
-        <a href="/doctor">Dashboard</a>
-        <a href="#">Patient Queue</a>
-        <a href="#">Prescriptions</a>
+        <a href="/doctor-dashboard">Dashboard</a>
         <a href="/login">Logout</a>
     </div>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN -->
     <div class="main">
 
         <div class="header">
             <h2>Doctor Dashboard</h2>
+            <p id="doctorName" style="color:#888; font-size:14px; margin-top:4px;"></p>
         </div>
 
-        <!-- CARDS -->
+        <!-- ── TEAMMATE FEATURE 2 & 3: STAT CARDS ── -->
         <div class="cards">
             <div class="card">
                 <h3>Today's Patients</h3>
-                <p>18</p>
+                <div class="stat-number" id="dailyCount">--</div>
+            </div>
+            <div class="card">
+                <h3>Avg / Day</h3>
+                <div class="stat-number" id="avgCount">--</div>
+            </div>
+            <div class="card">
+                <h3>Total Appointments</h3>
+                <div class="stat-number" id="totalCount">--</div>
             </div>
         </div>
 
-        <!-- QUEUE TABLE -->
-        <h3>Patient Queue</h3>
-        <table>
-            <tr>
-                <th>Queue</th>
-                <th>Patient</th>
-                <th>Priority</th>
-            </tr>
-            <tr>
-                <td>1</td>
-                <td>Rahim</td>
-                <td class="emergency">Emergency</td>
-            </tr>
-        </table>
+        <!-- ── MY FEATURE: TODAY'S LIVE QUEUE ── -->
+        <div class="section-box">
+            <h3>📋 Today's Patient Queue</h3>
+            <table class="dash-table" id="queueTable">
+                <tr>
+                    <th>Queue #</th>
+                    <th>Patient</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Time</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Est. Wait</th>
+                    <th>Action</th>
+                </tr>
+            </table>
+        </div>
 
-        <!-- PRESCRIPTION FORM -->
+        <!-- ── MY FEATURE: ALL APPOINTMENTS ── -->
+        <div class="section-box">
+            <h3>📅 All Appointments</h3>
+            <table class="dash-table" id="appointmentsTable">
+                <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Queue #</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                </tr>
+            </table>
+        </div>
+
+        <!-- ── MY FEATURE: PRESCRIPTION FORM ── -->
         <div class="form-box">
-            <h3>Update Prescription</h3>
-            <form action="/doctor/prescription" method="POST">
-                <input type="text" name="appointment_id" placeholder="Appointment ID" required>
-                <textarea name="details" placeholder="Prescription details" required></textarea>
-                <button type="submit">Submit</button>
-            </form>
+            <h3>✍️ Update Prescription</h3>
+            <input type="number" id="appt_id" placeholder="Appointment ID">
+            <textarea id="presc_details" placeholder="Prescription details..."></textarea>
+            <button onclick="submitPrescription()">Submit</button>
+            <p class="form-msg" id="prescMsg"></p>
+        </div>
+
+        <!-- ── MY FEATURE: UPDATE AVAILABILITY ── -->
+        <div class="avail-box">
+            <h3>🕐 Update My Availability</h3>
+            <input type="text" id="availInput"
+                placeholder="e.g. Monday: 9AM-12PM, 4PM-7PM Wednesday: 10AM-3PM">
+            <button onclick="updateAvailability()">Update</button>
+            <p class="form-msg" id="availMsg"></p>
+        </div>
+
+        <!-- ── TEAMMATE FEATURE 1: RATINGS & COMMENTS ── -->
+        <div class="section-box">
+            <h3>⭐ Patient Ratings & Comments</h3>
+            <div class="ratings-list" id="ratingsList">
+                <p class="no-data">Loading ratings...</p>
+            </div>
         </div>
 
     </div>
-
 </div>
+
+<script>
+
+/* ─────────────────────────────────────────────
+   RESOLVE DOCTOR ID
+   authController stores userId in sessionStorage.
+   We call GET /doctor/me/:user_id to get doctor_id.
+   ───────────────────────────────────────────── */
+const USER_ID = sessionStorage.getItem("userId");
+
+if (!USER_ID) {
+    window.location.href = "/login";
+}
+
+let DOCTOR_ID = null;
+
+// On load: resolve userId → doctorId, then load all sections
+fetch(`/doctor/me/${USER_ID}`)
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success || !data.doctor) {
+            window.location.href = "/login";
+            return;
+        }
+
+        DOCTOR_ID = data.doctor.doctor_id;
+        sessionStorage.setItem("doctorId", DOCTOR_ID);
+
+        document.getElementById("doctorName").innerText =
+            `Dr. ${data.doctor.name} — ${data.doctor.specialization}`;
+
+        // Set current availability in the input as placeholder
+        document.getElementById("availInput").placeholder =
+            data.doctor.availability || "e.g. Monday: 9AM-12PM";
+
+        // Now load everything
+        loadStats();
+        loadTodayQueue();
+        loadAllAppointments();
+        loadRatings();
+    })
+    .catch(err => {
+        console.error("Failed to resolve doctor:", err);
+        window.location.href = "/login";
+    });
+
+
+/* ─────────────────────────────────────────────
+   TEAMMATE FEATURE 2 & 3: STATS
+   ───────────────────────────────────────────── */
+function loadStats() {
+    // Daily count
+    fetch(`/doctor/stats/daily/${DOCTOR_ID}`)
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById("dailyCount").innerText =
+                d.daily_count ?? "--";
+        })
+        .catch(err => console.error("daily stats error:", err));
+
+    // Average + total
+    fetch(`/doctor/stats/average/${DOCTOR_ID}`)
+        .then(r => r.json())
+        .then(d => {
+            document.getElementById("avgCount").innerText =
+                d.average_per_day ?? "--";
+            document.getElementById("totalCount").innerText =
+                d.total_appointments ?? "--";
+        })
+        .catch(err => console.error("avg stats error:", err));
+}
+
+
+/* ─────────────────────────────────────────────
+   MY FEATURE: TODAY'S LIVE QUEUE
+   ───────────────────────────────────────────── */
+function loadTodayQueue() {
+    fetch(`/doctor/queue/${DOCTOR_ID}`)
+        .then(r => r.json())
+        .then(rows => {
+            const table = document.getElementById("queueTable");
+            table.innerHTML = `
+                <tr>
+                    <th>Queue #</th>
+                    <th>Patient</th>
+                    <th>Age</th>
+                    <th>Gender</th>
+                    <th>Time</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Est. Wait</th>
+                    <th>Action</th>
+                </tr>`;
+
+            if (!rows.length) {
+                table.innerHTML += `
+                    <tr><td colspan="9" class="no-data" style="padding:12px;">
+                        No patients in queue today
+                    </td></tr>`;
+                return;
+            }
+
+            rows.forEach(r => {
+                const priorityBadge = r.priority === "emergency"
+                    ? `<span class="badge-emergency">🚨 Emergency</span>`
+                    : `<span class="badge-normal">Normal</span>`;
+
+                const statusClass = `status-${r.status}`;
+
+                table.innerHTML += `
+                    <tr>
+                        <td><strong>${r.queue_number}</strong></td>
+                        <td>${r.patient_name}</td>
+                        <td>${r.age || "--"}</td>
+                        <td>${r.gender || "--"}</td>
+                        <td>${r.time || "--"}</td>
+                        <td>${priorityBadge}</td>
+                        <td><span class="${statusClass}">${r.status}</span></td>
+                        <td>${r.estimated_waiting_time != null
+                            ? r.estimated_waiting_time + " mins" : "--"}</td>
+                        <td>
+                            <button onclick="markStatus(${r.id}, 'in-progress')"
+                                style="margin-right:4px; padding:4px 8px; font-size:12px;
+                                       background:#f57c00; color:#fff; border:none;
+                                       border-radius:4px; cursor:pointer;">
+                                Start
+                            </button>
+                            <button onclick="markStatus(${r.id}, 'completed')"
+                                style="padding:4px 8px; font-size:12px;
+                                       background:#388e3c; color:#fff; border:none;
+                                       border-radius:4px; cursor:pointer;">
+                                Done
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        })
+        .catch(err => console.error("loadTodayQueue error:", err));
+}
+
+
+/* ─────────────────────────────────────────────
+   MY FEATURE: ALL APPOINTMENTS
+   ───────────────────────────────────────────── */
+function loadAllAppointments() {
+    fetch(`/doctor/appointments/${DOCTOR_ID}`)
+        .then(r => r.json())
+        .then(rows => {
+            const table = document.getElementById("appointmentsTable");
+            table.innerHTML = `
+                <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Queue #</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                </tr>`;
+
+            if (!rows.length) {
+                table.innerHTML += `
+                    <tr><td colspan="7" class="no-data" style="padding:12px;">
+                        No appointments found
+                    </td></tr>`;
+                return;
+            }
+
+            rows.forEach(r => {
+                const dateStr = r.date
+                    ? new Date(r.date).toLocaleDateString() : "--";
+                const priorityBadge = r.priority === "emergency"
+                    ? `<span class="badge-emergency">🚨 Emergency</span>`
+                    : `<span class="badge-normal">Normal</span>`;
+                const statusClass = `status-${r.status}`;
+
+                table.innerHTML += `
+                    <tr>
+                        <td>${r.id}</td>
+                        <td>${r.patient_name || "--"}</td>
+                        <td>${dateStr}</td>
+                        <td>${r.time || "--"}</td>
+                        <td>${r.queue_number ?? "--"}</td>
+                        <td>${priorityBadge}</td>
+                        <td><span class="${statusClass}">${r.status}</span></td>
+                    </tr>`;
+            });
+        })
+        .catch(err => console.error("loadAllAppointments error:", err));
+}
+
+
+/* ─────────────────────────────────────────────
+   MARK APPOINTMENT STATUS (Start / Done buttons)
+   ───────────────────────────────────────────── */
+function markStatus(appointmentId, status) {
+    fetch(`/appointments/status/${appointmentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status })
+    })
+    .then(r => r.json())
+    .then(() => {
+        loadTodayQueue();
+        loadAllAppointments();
+        loadStats();
+    })
+    .catch(err => console.error("markStatus error:", err));
+}
+
+
+/* ─────────────────────────────────────────────
+   MY FEATURE: SUBMIT PRESCRIPTION
+   ───────────────────────────────────────────── */
+function submitPrescription() {
+    const msg = document.getElementById("prescMsg");
+    msg.style.color = "#555";
+    msg.innerText = "";
+
+    const appointment_id = document.getElementById("appt_id").value;
+    const details        = document.getElementById("presc_details").value;
+
+    if (!appointment_id || !details) {
+        msg.style.color = "red";
+        msg.innerText = "Please fill in all fields.";
+        return;
+    }
+
+    fetch("/doctor/prescription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appointment_id, details })
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.error) {
+            msg.style.color = "red";
+            msg.innerText = result.error;
+            return;
+        }
+        msg.style.color = "#2e7d32";
+        msg.innerText = "✅ " + result.message;
+        document.getElementById("appt_id").value = "";
+        document.getElementById("presc_details").value = "";
+    })
+    .catch(err => {
+        msg.style.color = "red";
+        msg.innerText = "Failed. Please try again.";
+        console.error(err);
+    });
+}
+
+
+/* ─────────────────────────────────────────────
+   MY FEATURE: UPDATE AVAILABILITY
+   ───────────────────────────────────────────── */
+function updateAvailability() {
+    const msg   = document.getElementById("availMsg");
+    const avail = document.getElementById("availInput").value;
+    msg.style.color = "#555";
+    msg.innerText = "";
+
+    if (!avail) {
+        msg.style.color = "red";
+        msg.innerText = "Please enter your availability schedule.";
+        return;
+    }
+
+    fetch("/doctor/availability", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ doctor_id: DOCTOR_ID, availability: avail })
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.error) {
+            msg.style.color = "red";
+            msg.innerText = result.error;
+            return;
+        }
+        msg.style.color = "#2e7d32";
+        msg.innerText = "✅ Availability updated!";
+    })
+    .catch(err => {
+        msg.style.color = "red";
+        msg.innerText = "Failed. Please try again.";
+        console.error(err);
+    });
+}
+
+
+/* ─────────────────────────────────────────────
+   TEAMMATE FEATURE 1: RATINGS & COMMENTS
+   ───────────────────────────────────────────── */
+function loadRatings() {
+    const list = document.getElementById("ratingsList");
+
+    fetch(`/doctor/ratings/${DOCTOR_ID}`)
+        .then(r => r.json())
+        .then(data => {
+            const ratings = data.ratings || [];
+
+            if (!ratings.length) {
+                list.innerHTML = `<p class="no-data">No ratings yet.</p>`;
+                return;
+            }
+
+            list.innerHTML = "";
+
+            ratings.forEach(r => {
+                // Build star string: ★★★☆☆ for rating out of 5
+                const filled = "★".repeat(Math.min(r.rating, 5));
+                const empty  = "☆".repeat(Math.max(5 - r.rating, 0));
+
+                list.innerHTML += `
+                    <div class="rating-card">
+                        <div class="rc-top">
+                            <span class="rc-name">${r.patient_name}</span>
+                            <span class="stars">${filled}${empty}</span>
+                        </div>
+                        <div class="rc-comment">
+                            ${r.comment || "<em style='color:#aaa'>No comment left</em>"}
+                        </div>
+                    </div>`;
+            });
+        })
+        .catch(err => {
+            list.innerHTML = `<p class="no-data">Could not load ratings.</p>`;
+            console.error("loadRatings error:", err);
+        });
+}
+
+</script>
 
 </body>
 </html>
