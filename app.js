@@ -13,13 +13,9 @@ app.use(bodyParser.json());
 app.use("/css",     express.static(path.join(__dirname, "public/css")));
 app.use("/js",      express.static(path.join(__dirname, "public/js")));
 app.use("/images",  express.static(path.join(__dirname, "public/images")));
-// TEAMMATE FEATURE 4 & 5: Serve uploaded lab report files publicly
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 // ================= PAGE ROUTES =================
-// Must be defined BEFORE app.use("/doctor", doctorRoutes)
-// to avoid /doctor-dashboard being swallowed by the API router
-
 app.get("/login", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "login.html"));
 });
@@ -32,12 +28,10 @@ app.get("/patient", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "patient-dashboard.html"));
 });
 
-// FEATURE 2: Live queue page (teammate added — serves same patient dashboard)
 app.get("/live-queue", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "patient-dashboard.html"));
 });
 
-// MERGE FIX: /doctor-dashboard avoids conflict with app.use("/doctor", doctorRoutes)
 app.get("/doctor-dashboard", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "doctor-dashboard.html"));
 });
@@ -50,14 +44,14 @@ app.get("/admin", (req, res) => {
 const authRoutes        = require("./routes/authRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const doctorRoutes      = require("./routes/doctorRoutes");
-// TEAMMATE FEATURE 4 & 5: Medical records + lab report upload
 const medicalRoutes     = require("./routes/medicalRoutes");
+const ratingRoutes      = require("./routes/ratingRoutes"); // NEW
 
 app.use("/auth",         authRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/doctor",       doctorRoutes);
-// Mounts: /api/upload-report, /api/reports/:id, /api/medical-records
 app.use("/api",          medicalRoutes);
+app.use("/ratings",      ratingRoutes); // NEW — /ratings/add, /ratings/doctor/:id, /ratings/averages
 
 // ================= ROOT =================
 app.get("/", (req, res) => {

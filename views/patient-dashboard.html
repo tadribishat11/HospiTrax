@@ -73,7 +73,7 @@
 
         .doc-name  { font-size: 15px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
         .doc-id    { font-size: 12px; color: #999; margin-bottom: 8px; }
-        .doc-spec  { font-size: 13px; color: #444; margin-bottom: 10px; }
+        .doc-spec  { font-size: 13px; color: #444; margin-bottom: 6px; }
         .doc-avail-label {
             font-size: 11px; font-weight: 700;
             text-transform: uppercase; color: #888; margin-bottom: 4px;
@@ -82,13 +82,147 @@
             font-size: 12px; color: #2e7d32; background: #e8f5e9;
             border-radius: 6px; padding: 6px 8px;
             line-height: 1.7; white-space: pre-wrap; word-break: break-word;
+            margin-bottom: 8px;
         }
 
-        /* FEATURE 4 & 5: Medical Records & Lab Report section */
-        .medical-section {
-            margin-top: 32px;
+        /* Star rating display on doctor card */
+        .doc-stars {
+            font-size: 14px;
+            color: #f9a825;
+            letter-spacing: 2px;
         }
 
+        .doc-rating-count {
+            font-size: 11px;
+            color: #999;
+            margin-left: 4px;
+        }
+
+        /* Action buttons in table */
+        .btn-cancel {
+            padding: 4px 10px;
+            background: #e53935;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .btn-cancel:hover { background: #b71c1c; }
+
+        .btn-rate {
+            padding: 4px 10px;
+            background: #f9a825;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-rate:hover { background: #f57f17; }
+
+        /* Priority badge */
+        .badge-emergency {
+            background: #fdecea; color: #c62828;
+            font-weight: 700; padding: 2px 8px;
+            border-radius: 12px; font-size: 11px;
+        }
+
+        .badge-normal {
+            background: #e8f5e9; color: #2e7d32;
+            padding: 2px 8px; border-radius: 12px; font-size: 11px;
+        }
+
+        /* ── RATING MODAL ── */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: #fff;
+            border-radius: 14px;
+            padding: 28px;
+            width: 360px;
+            max-width: 95vw;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+        }
+
+        .modal h3 { margin-bottom: 16px; font-size: 17px; }
+
+        /* Interactive star selector */
+        .star-selector {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            font-size: 32px;
+            cursor: pointer;
+        }
+
+        .star-selector span {
+            color: #e0e0e0;
+            transition: color 0.15s;
+            user-select: none;
+        }
+
+        .star-selector span.selected,
+        .star-selector span.hovered { color: #f9a825; }
+
+        .modal textarea {
+            width: 100%;
+            height: 80px;
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            resize: vertical;
+            box-sizing: border-box;
+            margin-bottom: 14px;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btns button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .btn-submit-rating {
+            background: #1976d2;
+            color: #fff;
+        }
+
+        .btn-submit-rating:hover { background: #1558a8; }
+
+        .btn-close-modal {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .modal-msg {
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        /* Medical records */
+        .medical-section { margin-top: 32px; }
         .medical-section h3 { margin-bottom: 12px; }
 
         .upload-box {
@@ -101,10 +235,7 @@
             max-width: 420px;
         }
 
-        .upload-box input[type="file"] {
-            margin-bottom: 10px;
-            font-size: 13px;
-        }
+        .upload-box input[type="file"] { margin-bottom: 10px; font-size: 13px; }
 
         .upload-box button {
             padding: 8px 18px;
@@ -117,11 +248,7 @@
         }
 
         .upload-box button:hover { background: #1558a8; }
-
-        .upload-msg {
-            font-size: 13px;
-            margin-top: 8px;
-        }
+        .upload-msg { font-size: 13px; margin-top: 8px; }
 
         .records-table {
             width: 100%;
@@ -137,13 +264,7 @@
 
         .records-table th { background: #1976d2; color: #fff; }
         .records-table tr:nth-child(even) { background: #f5f5f5; }
-
-        .records-table a {
-            color: #1976d2;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
+        .records-table a { color: #1976d2; text-decoration: none; font-weight: 600; }
         .records-table a:hover { text-decoration: underline; }
 
         .doctors-loading, .doctors-error { font-size: 14px; color: #888; }
@@ -152,6 +273,30 @@
     </style>
 </head>
 <body>
+
+<!-- ── RATING MODAL ── -->
+<div class="modal-overlay" id="ratingModal">
+    <div class="modal">
+        <h3>⭐ Rate Your Doctor</h3>
+        <p id="ratingModalSubtitle" style="font-size:13px;color:#888;margin-bottom:14px;"></p>
+
+        <div class="star-selector" id="starSelector">
+            <span data-val="1">★</span>
+            <span data-val="2">★</span>
+            <span data-val="3">★</span>
+            <span data-val="4">★</span>
+            <span data-val="5">★</span>
+        </div>
+
+        <textarea id="ratingComment" placeholder="Leave a comment (optional)..."></textarea>
+        <p class="modal-msg" id="ratingMsg"></p>
+
+        <div class="modal-btns">
+            <button class="btn-close-modal" onclick="closeRatingModal()">Cancel</button>
+            <button class="btn-submit-rating" onclick="submitRating()">Submit</button>
+        </div>
+    </div>
+</div>
 
 <div class="container">
 
@@ -166,7 +311,7 @@
             <h2>Patient Dashboard</h2>
         </div>
 
-        <!-- FEATURE 2 & 3: LIVE QUEUE + ESTIMATED TIME CARDS -->
+        <!-- QUEUE CARDS -->
         <div class="cards">
             <div class="card">
                 <h3>Queue Number</h3>
@@ -178,7 +323,7 @@
             </div>
         </div>
 
-        <!-- FEATURE 1: MY APPOINTMENTS TABLE -->
+        <!-- APPOINTMENTS TABLE -->
         <h3>My Appointments</h3>
         <table id="appointmentsTable">
             <tr>
@@ -192,12 +337,11 @@
             </tr>
         </table>
 
-        <!-- FEATURE 1: BOOKING FORM + DOCTORS LIST SIDE BY SIDE -->
+        <!-- BOOKING FORM + DOCTORS LIST -->
         <div class="booking-doctors-row">
 
             <div class="form-box">
                 <h3>Book Appointment</h3>
-                <!-- patientId auto-filled from sessionStorage/URL — never shown to user -->
                 <input type="hidden" id="patient_id">
                 <input type="number" id="doctor_id" placeholder="Doctor ID">
                 <input type="date" id="date">
@@ -219,11 +363,10 @@
 
         </div>
 
-        <!-- FEATURE 4 & 5: MEDICAL RECORDS + LAB REPORT UPLOAD -->
+        <!-- MEDICAL RECORDS + LAB REPORT -->
         <div class="medical-section">
             <h3>Medical Records & Lab Reports</h3>
 
-            <!-- FEATURE 5: Upload lab report -->
             <div class="upload-box">
                 <h4 style="margin-bottom:10px;">Upload Lab Report</h4>
                 <input type="file" id="labReportFile" accept=".pdf,.jpg,.jpeg,.png">
@@ -232,7 +375,6 @@
                 <p class="upload-msg" id="uploadMsg"></p>
             </div>
 
-            <!-- FEATURE 4: Medical records table -->
             <table class="records-table" id="recordsTable">
                 <tr>
                     <th>#</th>
@@ -249,8 +391,7 @@
 <script>
 
 /* ─────────────────────────────────────────────
-   PATIENT ID — read from URL first, then sessionStorage
-   This prevents the redirect-back-to-login bug
+   SESSION — read patientId from URL or sessionStorage
    ───────────────────────────────────────────── */
 function getPatientId() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -263,33 +404,28 @@ function getPatientId() {
 }
 
 const PATIENT_ID = getPatientId();
-
-if (!PATIENT_ID) {
-    window.location.href = "/login";
-}
-
+if (!PATIENT_ID) window.location.href = "/login";
 document.getElementById("patient_id").value = PATIENT_ID;
+
+// Doctor rating averages — loaded once and reused when building doctor cards
+let doctorAverages = {}; // { doctor_id: { average_rating, total_ratings } }
+
+// Rating modal state
+let ratingDoctorId   = null;
+let ratingDoctorName = null;
+let selectedStars    = 0;
 
 
 /* ─────────────────────────────────────────────
-   FEATURE 1 + 2 + 3: LOAD APPOINTMENTS
-   Shows table, updates queue card and estimated time card
-   MERGE FIX: handles plain array [] (our format) and
-   also { success, appointments: [] } (teammate format)
+   LOAD APPOINTMENTS
    ───────────────────────────────────────────── */
 function loadAppointments() {
     fetch(`/appointments/patient/${PATIENT_ID}`)
-        .then(res => {
-            if (!res.ok) throw new Error("Server error: " + res.status);
-            return res.json();
-        })
+        .then(res => res.json())
         .then(response => {
-            // MERGE FIX: normalise both response shapes into a plain array
-            const data = Array.isArray(response)
-                ? response
-                : (response.appointments || []);
-
+            const data = Array.isArray(response) ? response : (response.appointments || []);
             const table = document.getElementById("appointmentsTable");
+
             table.innerHTML = `
                 <tr>
                     <th>Doctor</th>
@@ -299,26 +435,37 @@ function loadAppointments() {
                     <th>Queue</th>
                     <th>Priority</th>
                     <th>Action</th>
-                </tr>
-            `;
+                </tr>`;
 
             if (data.length === 0) {
                 table.innerHTML += `
-                    <tr>
-                        <td colspan="7" style="text-align:center;color:#888;padding:14px;">
-                            No upcoming appointments
-                        </td>
-                    </tr>`;
+                    <tr><td colspan="7" style="text-align:center;color:#888;padding:14px;">
+                        No appointments found
+                    </td></tr>`;
                 return;
             }
 
             data.forEach(app => {
-                const doctorLabel = app.doctor_name || `Doctor #${app.doctor_id}`;
-                const dateStr     = app.date ? new Date(app.date).toLocaleDateString() : "--";
-                const priority    = app.priority || "normal";
-                const priorityBadge = priority === "emergency"
-                    ? `<span style="color:#c62828;font-weight:700;">🚨 Emergency</span>`
-                    : `<span style="color:#555;">Normal</span>`;
+                const doctorLabel   = app.doctor_name || `Doctor #${app.doctor_id}`;
+                const dateStr       = app.date ? new Date(app.date).toLocaleDateString() : "--";
+                const priorityBadge = app.priority === "emergency"
+                    ? `<span class="badge-emergency">🚨 Emergency</span>`
+                    : `<span class="badge-normal">Normal</span>`;
+
+                // FEATURE 1: Cancel button — only for scheduled/confirmed
+                const canCancel = ["scheduled", "confirmed"].includes(app.status);
+                const cancelBtn = canCancel
+                    ? `<button class="btn-cancel" onclick="cancelAppointment(${app.id})">Cancel</button>`
+                    : "";
+
+                // FEATURE 2: Rate button — only for completed appointments
+                const canRate = app.status === "completed";
+                const rateBtn = canRate
+                    ? `<button class="btn-rate"
+                           onclick="openRatingModal(${app.doctor_id}, '${doctorLabel.replace(/'/g, "\\'")}')">
+                           ⭐ Rate
+                       </button>`
+                    : "";
 
                 table.innerHTML += `
                     <tr>
@@ -326,30 +473,44 @@ function loadAppointments() {
                         <td>${app.specialization || "--"}</td>
                         <td>${dateStr}</td>
                         <td>${app.status}</td>
-                        <td>${app.queue_number}</td>
+                        <td>${app.queue_number ?? "--"}</td>
                         <td>${priorityBadge}</td>
-                        <td><button onclick="cancelAppointment(${app.id})">Cancel</button></td>
-                    </tr>
-                `;
+                        <td>${cancelBtn}${rateBtn}</td>
+                    </tr>`;
             });
 
-            // FEATURE 2: Update live queue card from first upcoming appointment
-            document.getElementById("queueNumber").innerText = data[0].queue_number || "--";
-
-            // FEATURE 3: Estimated waiting time
-            const estTime = data[0].estimated_waiting_time ?? data[0].estimated_time;
-            document.getElementById("estimatedTime").innerText =
-                estTime != null ? estTime + " mins" : "--";
+            // Update queue cards from first active appointment
+            const active = data.find(a => !["cancelled","completed"].includes(a.status));
+            if (active) {
+                document.getElementById("queueNumber").innerText = active.queue_number || "--";
+                const estTime = active.estimated_waiting_time ?? active.estimated_time;
+                document.getElementById("estimatedTime").innerText =
+                    estTime != null ? estTime + " mins" : "--";
+            }
         })
         .catch(err => console.error("loadAppointments error:", err));
 }
 
 
 /* ─────────────────────────────────────────────
-   FEATURE 1: BOOK APPOINTMENT
-   MERGE FIX: response now has both flat fields
-   (queueNumber, estimatedWaitingTime) and nested
-   appointment object — dashboard reads flat fields
+   FEATURE 1: CANCEL APPOINTMENT
+   ───────────────────────────────────────────── */
+function cancelAppointment(id) {
+    if (!confirm("Are you sure you want to cancel this appointment?")) return;
+
+    fetch(`/appointments/cancel/${id}`, { method: "PUT" })
+        .then(res => res.json())
+        .then(result => {
+            if (result.error) { alert(result.error); return; }
+            alert("Appointment cancelled successfully.");
+            loadAppointments();
+        })
+        .catch(err => console.error("cancelAppointment error:", err));
+}
+
+
+/* ─────────────────────────────────────────────
+   BOOK APPOINTMENT
    ───────────────────────────────────────────── */
 function bookAppointment() {
     const errBox = document.getElementById("bookingError");
@@ -376,7 +537,6 @@ function bookAppointment() {
     })
     .then(res => res.json())
     .then(result => {
-        // handle both error shapes
         if (result.error || result.success === false) {
             errBox.innerText = result.error || result.message || "Booking failed.";
             errBox.style.display = "block";
@@ -399,68 +559,164 @@ function bookAppointment() {
 
 
 /* ─────────────────────────────────────────────
-   CANCEL APPOINTMENT
+   FEATURE 2: RATING MODAL
    ───────────────────────────────────────────── */
-function cancelAppointment(id) {
-    if (!confirm("Cancel this appointment?")) return;
+function openRatingModal(doctorId, doctorName) {
+    ratingDoctorId   = doctorId;
+    ratingDoctorName = doctorName;
+    selectedStars    = 0;
 
-    fetch(`/appointments/cancel/${id}`, { method: "PUT" })
-        .then(res => res.json())
-        .then(result => {
-            if (result.error) { alert(result.error); return; }
-            alert("Appointment cancelled.");
-            loadAppointments();
+    document.getElementById("ratingModalSubtitle").innerText = `Rating: ${doctorName}`;
+    document.getElementById("ratingComment").value = "";
+    document.getElementById("ratingMsg").innerText = "";
+
+    // Reset stars
+    document.querySelectorAll("#starSelector span").forEach(s => s.classList.remove("selected","hovered"));
+
+    document.getElementById("ratingModal").classList.add("active");
+}
+
+function closeRatingModal() {
+    document.getElementById("ratingModal").classList.remove("active");
+    ratingDoctorId = null;
+    selectedStars  = 0;
+}
+
+// Star hover and click behaviour
+document.querySelectorAll("#starSelector span").forEach(star => {
+    star.addEventListener("mouseenter", () => {
+        const val = parseInt(star.dataset.val);
+        document.querySelectorAll("#starSelector span").forEach(s => {
+            s.classList.toggle("hovered", parseInt(s.dataset.val) <= val);
+        });
+    });
+
+    star.addEventListener("mouseleave", () => {
+        document.querySelectorAll("#starSelector span").forEach(s => s.classList.remove("hovered"));
+    });
+
+    star.addEventListener("click", () => {
+        selectedStars = parseInt(star.dataset.val);
+        document.querySelectorAll("#starSelector span").forEach(s => {
+            s.classList.toggle("selected", parseInt(s.dataset.val) <= selectedStars);
+        });
+    });
+});
+
+function submitRating() {
+    const msg = document.getElementById("ratingMsg");
+    msg.style.color = "#555";
+    msg.innerText = "";
+
+    if (!selectedStars) {
+        msg.style.color = "red";
+        msg.innerText = "Please select a star rating.";
+        return;
+    }
+
+    fetch("/ratings/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            doctor_id:  ratingDoctorId,
+            patient_id: PATIENT_ID,
+            rating:     selectedStars,
+            comment:    document.getElementById("ratingComment").value || null
         })
-        .catch(err => console.error(err));
+    })
+    .then(res => res.json())
+    .then(result => {
+        if (result.error) {
+            msg.style.color = "red";
+            msg.innerText = result.error;
+            return;
+        }
+        msg.style.color = "#2e7d32";
+        msg.innerText = "✅ " + result.message;
+        // Reload doctor cards to show updated stars
+        setTimeout(() => {
+            closeRatingModal();
+            loadDoctors();
+        }, 1200);
+    })
+    .catch(err => {
+        msg.style.color = "red";
+        msg.innerText = "Failed to submit. Please try again.";
+        console.error(err);
+    });
 }
 
 
 /* ─────────────────────────────────────────────
-   LOAD DOCTORS LIST
+   LOAD DOCTORS with avg star rating
    ───────────────────────────────────────────── */
 function loadDoctors() {
     const grid = document.getElementById("doctorsGrid");
 
-    fetch("/doctor/list")
-        .then(res => {
-            if (!res.ok) throw new Error("Failed to fetch");
-            return res.json();
-        })
-        .then(doctors => {
-            if (!doctors || doctors.length === 0) {
-                grid.innerHTML = `<p class="doctors-error">No doctors found.</p>`;
-                return;
+    // Fetch doctor list and rating averages in parallel
+    Promise.all([
+        fetch("/doctor/list").then(r => r.json()),
+        fetch("/ratings/averages").then(r => r.json())
+    ])
+    .then(([doctors, ratingsData]) => {
+        // Build a lookup map: doctor_id → { average_rating, total_ratings }
+        doctorAverages = {};
+        if (ratingsData.success && ratingsData.averages) {
+            ratingsData.averages.forEach(a => {
+                doctorAverages[a.doctor_id] = a;
+            });
+        }
+
+        if (!doctors || doctors.length === 0) {
+            grid.innerHTML = `<p class="doctors-error">No doctors found.</p>`;
+            return;
+        }
+
+        grid.innerHTML = "";
+
+        doctors.forEach(doc => {
+            const raw = doc.availability || "Not specified";
+            const formatted = raw
+                .replace(/(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(?=\s*:)/g, '\n$1')
+                .trim();
+
+            // Build star display for this doctor
+            const avgData = doctorAverages[doc.id];
+            let starsHtml = "";
+            if (avgData && avgData.average_rating) {
+                const full  = Math.round(avgData.average_rating);
+                const empty = 5 - full;
+                starsHtml = `
+                    <div style="margin-top:8px;">
+                        <span class="doc-stars">${"★".repeat(full)}${"☆".repeat(empty)}</span>
+                        <span class="doc-rating-count">
+                            ${avgData.average_rating} (${avgData.total_ratings} review${avgData.total_ratings !== 1 ? "s" : ""})
+                        </span>
+                    </div>`;
+            } else {
+                starsHtml = `<div style="margin-top:8px;font-size:12px;color:#bbb;">No ratings yet</div>`;
             }
 
-            grid.innerHTML = "";
-
-            doctors.forEach(doc => {
-                const raw = doc.availability || "Not specified";
-                const formatted = raw
-                    .replace(/(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)(?=\s*:)/g, '\n$1')
-                    .trim();
-
-                grid.innerHTML += `
-                    <div class="doctor-card">
-                        <div class="doc-name">${doc.name}</div>
-                        <div class="doc-id">ID: ${doc.id}</div>
-                        <div class="doc-spec">🩺 ${doc.specialization}</div>
-                        <div class="doc-avail-label">🕐 Schedule</div>
-                        <div class="doc-avail-schedule">${formatted}</div>
-                    </div>
-                `;
-            });
-        })
-        .catch(err => {
-            grid.innerHTML = `<p class="doctors-error">Could not load doctors.</p>`;
-            console.error(err);
+            grid.innerHTML += `
+                <div class="doctor-card">
+                    <div class="doc-name">${doc.name}</div>
+                    <div class="doc-id">ID: ${doc.id}</div>
+                    <div class="doc-spec">🩺 ${doc.specialization}</div>
+                    <div class="doc-avail-label">🕐 Schedule</div>
+                    <div class="doc-avail-schedule">${formatted}</div>
+                    ${starsHtml}
+                </div>`;
         });
+    })
+    .catch(err => {
+        grid.innerHTML = `<p class="doctors-error">Could not load doctors.</p>`;
+        console.error(err);
+    });
 }
 
 
 /* ─────────────────────────────────────────────
-   FEATURE 5: UPLOAD LAB REPORT
-   Sends file to /api/upload-report (teammate's medicalRoutes)
+   MEDICAL RECORDS & LAB REPORT UPLOAD
    ───────────────────────────────────────────── */
 function uploadLabReport() {
     const fileInput = document.getElementById("labReportFile");
@@ -501,51 +757,39 @@ function uploadLabReport() {
     });
 }
 
-
-/* ─────────────────────────────────────────────
-   FEATURE 4: LOAD MEDICAL RECORDS
-   Fetches stored records from /api/medical-records
-   ───────────────────────────────────────────── */
 function loadMedicalRecords() {
     fetch(`/api/medical-records?patient_id=${PATIENT_ID}`)
         .then(res => res.json())
         .then(response => {
-            const records = Array.isArray(response)
-                ? response
-                : (response.records || []);
+            const records = Array.isArray(response) ? response : (response.records || []);
+            const table   = document.getElementById("recordsTable");
 
-            const table = document.getElementById("recordsTable");
             table.innerHTML = `
                 <tr>
                     <th>#</th>
                     <th>File Name</th>
                     <th>Date Uploaded</th>
                     <th>View</th>
-                </tr>
-            `;
+                </tr>`;
 
             if (records.length === 0) {
                 table.innerHTML += `
-                    <tr>
-                        <td colspan="4" style="text-align:center;color:#888;padding:12px;">
-                            No records uploaded yet
-                        </td>
-                    </tr>`;
+                    <tr><td colspan="4" style="text-align:center;color:#888;padding:12px;">
+                        No records uploaded yet
+                    </td></tr>`;
                 return;
             }
 
             records.forEach((rec, i) => {
                 const uploadedDate = rec.created_at
-                    ? new Date(rec.created_at).toLocaleDateString()
-                    : "--";
+                    ? new Date(rec.created_at).toLocaleDateString() : "--";
                 table.innerHTML += `
                     <tr>
                         <td>${i + 1}</td>
                         <td>${rec.file_name || rec.filename || "Report"}</td>
                         <td>${uploadedDate}</td>
                         <td><a href="/uploads/${rec.file_path || rec.filename}" target="_blank">View 📄</a></td>
-                    </tr>
-                `;
+                    </tr>`;
             });
         })
         .catch(err => console.error("loadMedicalRecords error:", err));
@@ -553,7 +797,7 @@ function loadMedicalRecords() {
 
 
 /* ─────────────────────────────────────────────
-   AUTO LOAD on page open
+   AUTO LOAD
    ───────────────────────────────────────────── */
 loadAppointments();
 loadDoctors();
