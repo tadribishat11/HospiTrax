@@ -3,8 +3,9 @@ const db = require("../config/db");
 const Patient = {
     create: (data) => {
         return new Promise((resolve, reject) => {
-            const sql = "INSERT INTO patients SET ?";
-            db.query(sql, data, (err, result) => {
+            const sql = "INSERT INTO patients (user_id, age, gender) VALUES (?, ?, ?)";
+            const values = [data.user_id, data.age, data.gender];
+            db.query(sql, values, (err, result) => {
                 if (err) reject(err);
                 else resolve(result);
             });

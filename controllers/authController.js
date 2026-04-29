@@ -15,7 +15,10 @@ exports.register = async (req, res) => {
             "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)",
             [name, email, hashed, role],
             async (err, result) => {
-                if (err) return res.send("Registration failed");
+                if (err) {
+                    console.error("User insert error:", err);
+                    return res.send("Registration failed: " + err.message);
+                }
 
                 const userId = result.insertId;
 
@@ -28,12 +31,14 @@ exports.register = async (req, res) => {
                     }
                     res.redirect("/login");
                 } catch (err) {
-                    res.send("Role data insertion failed");
+                    console.error("Role data insertion error:", err);
+                    res.send("Role data insertion failed: " + err.message);
                 }
             }
         );
     } catch (error) {
-        res.send("Error occurred");
+        console.error("Registration error:", error);
+        res.send("Error occurred: " + error.message);
     }
 };
 
