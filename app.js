@@ -46,12 +46,18 @@ const appointmentRoutes = require("./routes/appointmentRoutes");
 const doctorRoutes      = require("./routes/doctorRoutes");
 const medicalRoutes     = require("./routes/medicalRoutes");
 const ratingRoutes      = require("./routes/ratingRoutes"); // NEW
+const prescriptionRoutes = require("./routes/prescriptionRoutes"); // NEW
+const scheduleRoutes    = require("./routes/scheduleRoutes"); // NEW
+const slotRoutes        = require("./routes/slotRoutes"); // NEW
 
 app.use("/auth",         authRoutes);
 app.use("/appointments", appointmentRoutes);
 app.use("/doctor",       doctorRoutes);
 app.use("/api",          medicalRoutes);
 app.use("/ratings",      ratingRoutes); // NEW — /ratings/add, /ratings/doctor/:id, /ratings/averages
+app.use("/prescriptions", prescriptionRoutes); // NEW
+app.use("/schedule",     scheduleRoutes); // NEW
+app.use("/slots",        slotRoutes); // NEW
 
 // ================= ROOT =================
 app.get("/", (req, res) => {

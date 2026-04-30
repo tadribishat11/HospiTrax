@@ -370,3 +370,66 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+--Feature :Doctor Schedule Slots(nafi)
+CREATE TABLE IF NOT EXISTS `doctor_schedule_slots` (
+  `id`          int(11)      NOT NULL AUTO_INCREMENT,
+  `doctor_id`   int(11)      NOT NULL,
+  `day_of_week` enum('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday') NOT NULL,
+  `start_time`  time         NOT NULL,
+  `end_time`    time         NOT NULL,
+  `is_active`   tinyint(1)   NOT NULL DEFAULT 1,
+  `created_at`  timestamp    NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_slot_doctor` (`doctor_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+-- Seed sample slots for existing doctors (IDs 3 & 4)
+INSERT INTO `doctor_schedule_slots` (`doctor_id`, `day_of_week`, `start_time`, `end_time`) VALUES
+  (3, 'Monday',    '09:00:00', '12:00:00'),
+  (3, 'Monday',    '16:00:00', '19:00:00'),
+  (3, 'Wednesday', '10:00:00', '15:00:00'),
+  (4, 'Sunday',    '09:00:00', '12:00:00'),
+  (4, 'Sunday',    '16:00:00', '19:00:00'),
+  (4, 'Tuesday',   '10:00:00', '15:00:00');
+  ------------------------------------------------
+  --FEATURE : Enhanced Prescriptions (nafi)
+
+ALTER TABLE `prescriptions`
+  ADD COLUMN IF NOT EXISTS `doctor_id`   int(11)   DEFAULT NULL    AFTER `details`,
+  ADD COLUMN IF NOT EXISTS `patient_id`  int(11)   DEFAULT NULL    AFTER `doctor_id`,
+  ADD COLUMN IF NOT EXISTS `medicines`   JSON      DEFAULT NULL    AFTER `patient_id`,
+  ADD COLUMN IF NOT EXISTS `updated_at`  timestamp NOT NULL
+      DEFAULT current_timestamp() ON UPDATE current_timestamp()    AFTER `medicines`;
+ 
+UPDATE `prescriptions` p
+JOIN   `appointments` a ON a.id = p.appointment_id
+SET    p.doctor_id  = a.doctor_id,
+       p.patient_id = a.patient_id
+WHERE  p.doctor_id IS NULL;
+-----------------------------------------------------
+--FEATURE : Slot Waitlist & Reassignment Log
+
+CREATE TABLE IF NOT EXISTS `slot_waitlist` (
+  `id`             int(11)    NOT NULL AUTO_INCREMENT,
+  `doctor_id`      int(11)    NOT NULL,
+  `patient_id`     int(11)    NOT NULL,
+  `preferred_date` date       NOT NULL,
+  `preferred_time` time       DEFAULT NULL,
+  `status`         enum('waiting','assigned','expired') NOT NULL DEFAULT 'waiting',
+  `created_at`     timestamp  NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_wl_doctor`  (`doctor_id`),
+  KEY `idx_wl_patient` (`patient_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+ 
+CREATE TABLE IF NOT EXISTS `slot_reassignments` (
+  `id`               int(11)    NOT NULL AUTO_INCREMENT,
+  `original_appt_id` int(11)    NOT NULL,
+  `new_appt_id`      int(11)    NOT NULL,
+  `waitlist_id`      int(11)    DEFAULT NULL,
+  `reassigned_at`    timestamp  NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-----------------------------------------------------------------

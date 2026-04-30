@@ -270,6 +270,158 @@
         .doctors-loading, .doctors-error { font-size: 14px; color: #888; }
         .doctors-error { color: #c62828; }
 
+/* ── Feature 1: Availability calendar (patient side) ── */
+.avail-calendar {
+    overflow-x: auto;
+    margin-top: 16px;
+}
+.avail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    min-width: 560px;
+}
+.avail-table th {
+    background: #1976d2;
+    color: #fff;
+    padding: 9px 12px;
+    text-align: center;
+    font-weight: 600;
+}
+.avail-table td {
+    padding: 8px 10px;
+    border: 1px solid #e8e8e8;
+    text-align: center;
+    vertical-align: top;
+}
+.avail-table tr:nth-child(even) td { background: #fafafa; }
+.avail-slot-chip {
+    display: inline-block;
+    background: #e3f2fd;
+    border: 1px solid #90caf9;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 12px;
+    color: #1565c0;
+    margin: 2px;
+    white-space: nowrap;
+}
+.avail-doctor-name {
+    font-weight: 700;
+    font-size: 12px;
+    color: #333;
+    margin-bottom: 4px;
+}
+.avail-specialization {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+/* ── Feature 2: My Prescriptions tab (patient side) ── */
+.rx-card {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 14px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.rx-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.rx-card-header .rx-doctor {
+    font-weight: 700;
+    color: #1976d2;
+    font-size: 14px;
+}
+.rx-card-header .rx-date {
+    font-size: 12px;
+    color: #888;
+}
+.rx-notes {
+    font-size: 13px;
+    color: #444;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+.rx-med-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+.rx-med-table th {
+    background: #f0f4ff;
+    color: #1976d2;
+    padding: 6px 10px;
+    text-align: left;
+}
+.rx-med-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+/* ── Feature 3: Waitlist section ── */
+.waitlist-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+    margin-top: 14px;
+}
+.waitlist-form label {
+    font-size: 12px;
+    color: #555;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+.waitlist-form input,
+.waitlist-form select {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 13px;
+    min-width: 130px;
+}
+.waitlist-form button {
+    padding: 9px 20px;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+}
+.waitlist-form button:hover { background: #1558a8; }
+.waitlist-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f5f9ff;
+    border: 1px solid #c9dff7;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+.waitlist-entry .wl-info { color: #333; }
+.waitlist-entry .wl-leave {
+    background: none;
+    border: 1px solid #e53935;
+    color: #e53935;
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+.badge-waiting  { background:#fff8e1;color:#f57c00;padding:2px 8px;border-radius:12px;font-size:11px; }
+.badge-assigned { background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:12px;font-size:11px; }
+.badge-expired  { background:#fdecea;color:#c62828;padding:2px 8px;border-radius:12px;font-size:11px; }
+
     </style>
 </head>
 <body>
@@ -361,6 +513,81 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- ── FEATURE 1: Weekly Availability Calendar ──────────────── -->
+        <div class="section-box" style="margin-top:24px;">
+            <h3>📅 Doctor Availability Schedule</h3>
+            <p style="font-size:13px;color:#888;margin-bottom:4px;">
+                View when each doctor is available this week.
+            </p>
+            <div class="avail-calendar">
+                <table class="avail-table" id="availCalendarTable">
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Monday</th>
+                            <th>Tuesday</th>
+                            <th>Wednesday</th>
+                            <th>Thursday</th>
+                            <th>Friday</th>
+                            <th>Saturday</th>
+                            <th>Sunday</th>
+                        </tr>
+                    </thead>
+                    <tbody id="availCalendarBody">
+                        <tr><td colspan="8" style="color:#aaa;padding:12px;text-align:center;">
+                            Loading schedule…
+                        </td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <!-- ── FEATURE 2: My Prescriptions ──────────────────────────── -->
+        <div class="section-box" style="margin-top:24px;">
+            <h3>💊 My Prescriptions</h3>
+            <p style="font-size:13px;color:#888;margin-bottom:14px;">
+                Prescriptions issued by your doctors.
+            </p>
+            <div id="prescriptionsList">
+                <p style="color:#aaa;font-size:13px;">Loading prescriptions…</p>
+            </div>
+        </div>
+
+
+        <!-- ── FEATURE 3: Slot Waitlist ─────────────────────────────── -->
+        <div class="section-box" style="margin-top:24px;">
+            <h3>⏳ Slot Waitlist</h3>
+            <p style="font-size:13px;color:#888;">
+                If your preferred slot is full, join the waitlist.
+                You will be automatically booked when a slot opens.
+            </p>
+
+            <div class="waitlist-form">
+                <div>
+                    <label>Doctor ID</label>
+                    <input type="number" id="wl_doctor_id" placeholder="Doctor ID" min="1">
+                </div>
+                <div>
+                    <label>Preferred Date</label>
+                    <input type="date" id="wl_date">
+                </div>
+                <div>
+                    <label>Preferred Time (optional)</label>
+                    <input type="time" id="wl_time">
+                </div>
+                <div>
+                    <button onclick="joinWaitlist()">Join Waitlist</button>
+                </div>
+            </div>
+            <p id="wlMsg" style="font-size:13px;margin-top:8px;"></p>
+
+            <h4 style="margin-top:20px;margin-bottom:10px;font-size:14px;">My Waitlist Entries</h4>
+            <div id="myWaitlist">
+                <p style="color:#aaa;font-size:13px;">Loading…</p>
+            </div>
         </div>
 
         <!-- MEDICAL RECORDS + LAB REPORT -->
@@ -802,6 +1029,227 @@ function loadMedicalRecords() {
 loadAppointments();
 loadDoctors();
 loadMedicalRecords();
+loadAvailabilityCalendar();
+loadMyPrescriptions();
+loadMyWaitlist();
+
+/* ── FEATURE 1: Availability Calendar (patient view) ─────────── */
+
+function loadAvailabilityCalendar() {
+    const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+    const body = document.getElementById("availCalendarBody");
+
+    fetch("/schedule/all")
+        .then(r => r.json())
+        .then(data => {
+            const slots = data.schedule || [];
+            if (!slots.length) {
+                body.innerHTML = `<tr><td colspan="8" style="color:#aaa;padding:12px;text-align:center;">
+                    No schedules published yet.</td></tr>`;
+                return;
+            }
+
+            // Group: doctor_id → day → [slot, …]
+            const byDoc = {};
+            slots.forEach(s => {
+                if (!byDoc[s.doctor_id])
+                    byDoc[s.doctor_id] = { name: s.doctor_name, spec: s.specialization, days: {} };
+                if (!byDoc[s.doctor_id].days[s.day_of_week])
+                    byDoc[s.doctor_id].days[s.day_of_week] = [];
+                byDoc[s.doctor_id].days[s.day_of_week].push(s);
+            });
+
+            body.innerHTML = "";
+            Object.entries(byDoc).forEach(([docId, doc]) => {
+                let row = `<tr>
+                    <td style="text-align:left;">
+                        <div class="avail-doctor-name">${doc.name}</div>
+                        <div class="avail-specialization">🩺 ${doc.spec}</div>
+                    </td>`;
+
+                DAYS.forEach(day => {
+                    const daySlots = doc.days[day] || [];
+                    if (daySlots.length === 0) {
+                        row += `<td style="color:#ddd;">—</td>`;
+                    } else {
+                        const chips = daySlots.map(s => {
+                            const start = s.start_time.slice(0, 5);
+                            const end   = s.end_time.slice(0, 5);
+                            return `<span class="avail-slot-chip">${start}–${end}</span>`;
+                        }).join("");
+                        row += `<td>${chips}</td>`;
+                    }
+                });
+
+                row += "</tr>";
+                body.innerHTML += row;
+            });
+        })
+        .catch(err => {
+            body.innerHTML = `<tr><td colspan="8" style="color:#c62828;padding:12px;text-align:center;">
+                Could not load schedule.</td></tr>`;
+            console.error("loadAvailabilityCalendar error:", err);
+        });
+}
+
+
+/* ── FEATURE 2: Patient Prescriptions ───────────────────────── */
+
+function loadMyPrescriptions() {
+    const container = document.getElementById("prescriptionsList");
+
+    fetch(`/prescriptions/patient/${PATIENT_ID}`)
+        .then(r => r.json())
+        .then(data => {
+            const list = data.prescriptions || [];
+            if (!list.length) {
+                container.innerHTML = `<p style="color:#aaa;font-size:13px;">
+                    No prescriptions on record yet.</p>`;
+                return;
+            }
+
+            container.innerHTML = "";
+            list.forEach(p => {
+                const dateStr = p.appointment_date
+                    ? new Date(p.appointment_date).toLocaleDateString() : "--";
+
+                let medsHtml = "";
+                if (p.medicines && p.medicines.length > 0) {
+                    const rows = p.medicines.map(m => `
+                        <tr>
+                            <td>${m.name || "--"}</td>
+                            <td>${m.dosage || "--"}</td>
+                            <td>${m.frequency || "--"}</td>
+                            <td>${m.duration || "--"}</td>
+                        </tr>`).join("");
+                    medsHtml = `
+                        <table class="rx-med-table">
+                            <tr>
+                                <th>Medicine</th><th>Dosage</th>
+                                <th>Frequency</th><th>Duration</th>
+                            </tr>
+                            ${rows}
+                        </table>`;
+                }
+
+                container.innerHTML += `
+                    <div class="rx-card">
+                        <div class="rx-card-header">
+                            <div class="rx-doctor">
+                                Dr. ${p.doctor_name}
+                                <span style="font-weight:400;font-size:12px;color:#888;">
+                                    · ${p.specialization || ""}
+                                </span>
+                            </div>
+                            <div class="rx-date">📅 ${dateStr}</div>
+                        </div>
+                        <div class="rx-notes">
+                            <strong>Notes:</strong> ${p.details || "--"}
+                        </div>
+                        ${medsHtml || `<p style="font-size:12px;color:#aaa;">No medicines listed.</p>`}
+                    </div>`;
+            });
+        })
+        .catch(err => {
+            container.innerHTML = `<p style="color:#c62828;font-size:13px;">
+                Could not load prescriptions.</p>`;
+            console.error("loadMyPrescriptions error:", err);
+        });
+}
+
+
+/* ── FEATURE 3: Waitlist ─────────────────────────────────────── */
+
+function joinWaitlist() {
+    const msg    = document.getElementById("wlMsg");
+    const doc_id = document.getElementById("wl_doctor_id").value;
+    const date   = document.getElementById("wl_date").value;
+    const time   = document.getElementById("wl_time").value;
+
+    msg.style.color = "red";
+    if (!doc_id) { msg.innerText = "Enter a Doctor ID."; return; }
+    if (!date)   { msg.innerText = "Select a preferred date."; return; }
+
+    msg.style.color = "#555";
+    msg.innerText = "Joining waitlist…";
+
+    fetch("/slots/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            patient_id:     PATIENT_ID,
+            doctor_id:      doc_id,
+            preferred_date: date,
+            preferred_time: time || null
+        })
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.error) { msg.style.color = "red"; msg.innerText = result.error; return; }
+        msg.style.color = "#2e7d32";
+        msg.innerText = "✅ " + result.message;
+        document.getElementById("wl_doctor_id").value = "";
+        document.getElementById("wl_date").value = "";
+        document.getElementById("wl_time").value = "";
+        loadMyWaitlist();
+    })
+    .catch(() => { msg.style.color = "red"; msg.innerText = "Failed. Try again."; });
+}
+
+function loadMyWaitlist() {
+    const container = document.getElementById("myWaitlist");
+
+    fetch(`/slots/waitlist/patient/${PATIENT_ID}`)
+        .then(r => r.json())
+        .then(data => {
+            const list = data.waitlist || [];
+            if (!list.length) {
+                container.innerHTML = `<p style="color:#aaa;font-size:13px;">
+                    You are not on any waitlists.</p>`;
+                return;
+            }
+
+            container.innerHTML = "";
+            list.forEach(w => {
+                const dateStr = w.preferred_date
+                    ? new Date(w.preferred_date).toLocaleDateString() : "--";
+                const timeStr = w.preferred_time
+                    ? w.preferred_time.slice(0, 5) : "Any time";
+                const badgeClass = `badge-${w.status}`;
+
+                container.innerHTML += `
+                    <div class="waitlist-entry">
+                        <div class="wl-info">
+                            <strong>Dr. ${w.doctor_name}</strong>
+                            <span style="font-size:12px;color:#888;"> · ${w.specialization}</span><br>
+                            <span>📅 ${dateStr} &nbsp; ⏰ ${timeStr}</span>
+                            &nbsp; <span class="${badgeClass}">${w.status}</span>
+                        </div>
+                        ${w.status === "waiting"
+                            ? `<button class="wl-leave" onclick="leaveWaitlist(${w.id})">
+                                Leave</button>`
+                            : ""}
+                    </div>`;
+            });
+        })
+        .catch(err => {
+            container.innerHTML = `<p style="color:#c62828;font-size:13px;">
+                Could not load waitlist.</p>`;
+            console.error("loadMyWaitlist error:", err);
+        });
+}
+
+function leaveWaitlist(waitlistId) {
+    if (!confirm("Remove yourself from this waitlist?")) return;
+
+    fetch(`/slots/waitlist/${waitlistId}`, { method: "DELETE" })
+        .then(r => r.json())
+        .then(result => {
+            if (result.error) { alert(result.error); return; }
+            loadMyWaitlist();
+        })
+        .catch(err => console.error("leaveWaitlist error:", err));
+}
 
 </script>
 
