@@ -612,9 +612,26 @@
             </table>
         </div>
 
+        <!-- ── FEATURE: MY HEALTH TRENDS ── -->
+        <div class="section-box" style="margin-top:24px;">
+            <h3>📈 My Health Trends</h3>
+            <p style="font-size:13px;color:#888;margin-bottom:14px;">
+                Visualize your vital signs recorded during consultations over time.
+            </p>
+            <div id="healthTrendsContainer">
+                <canvas id="vitalsChart" width="400" height="150"></canvas>
+            </div>
+            
+            <h4 style="margin-top:20px;font-size:14px;">Recent Readings</h4>
+            <div id="vitalsTableContainer" style="font-size:13px;">
+                <p style="color:#aaa;">Loading health trends...</p>
+            </div>
+        </div>
+
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script>
 
 /* ─────────────────────────────────────────────
@@ -1032,6 +1049,7 @@ loadMedicalRecords();
 loadAvailabilityCalendar();
 loadMyPrescriptions();
 loadMyWaitlist();
+loadHealthTrends();
 
 /* ── FEATURE 1: Availability Calendar (patient view) ─────────── */
 
@@ -1249,6 +1267,118 @@ function leaveWaitlist(waitlistId) {
             loadMyWaitlist();
         })
         .catch(err => console.error("leaveWaitlist error:", err));
+}
+
+/* ── FEATURE: MY HEALTH TRENDS ── */
+function loadHealthTrends() {
+    const tableContainer = document.getElementById("vitalsTableContainer");
+    
+    fetch(`/vitals/patient/${PATIENT_ID}`)
+    .then(r => r.json())
+    .then(data => {
+        const vitals = data.vitals || [];
+        if (!vitals.length) {
+            tableContainer.innerHTML = "<p style='color:#aaa;'>No health data recorded yet.</p>";
+            return;
+        }
+
+        // 1. Render Table
+        let html = `<table class="records-table">
+            <tr>
+                <th>Date</th>
+                <th>Doctor</th>
+                <th>BP (Sys/Dia)</th>
+                <th>Heart Rate</th>
+                <th>Glucose</th>
+                <th>Weight (kg)</th>
+            </tr>`;
+        
+        // Show up to last 10 readings in table
+        vitals.slice(0, 10).forEach(v => {
+            const d = new Date(v.recorded_at).toLocaleDateString();
+            const bp = (v.blood_pressure_systolic || '-') + '/' + (v.blood_pressure_diastolic || '-');
+            html += `<tr>
+                <td>${d}</td>
+                <td>Dr. ${v.doctor_name || '--'}</td>
+                <td>${bp}</td>
+                <td>${v.heart_rate || '-'}</td>
+                <td>${v.blood_glucose || '-'}</td>
+                <td>${v.weight || '-'}</td>
+            </tr>`;
+        });
+        html += "</table>";
+        tableContainer.innerHTML = html;
+
+        // 2. Render Chart
+        const labels = vitals.map(v => new Date(v.recorded_at).toLocaleDateString()).reverse();
+        
+        const bpSysData = vitals.map(v => v.blood_pressure_systolic).reverse();
+        const bpDiaData = vitals.map(v => v.blood_pressure_diastolic).reverse();
+        const hrData = vitals.map(v => v.heart_rate).reverse();
+        const glucoseData = vitals.map(v => v.blood_glucose).reverse();
+        const weightData = vitals.map(v => v.weight).reverse();
+
+        const ctx = document.getElementById('vitalsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'BP Systolic',
+                        data: bpSysData,
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)',
+                        borderColor: 'rgb(255, 99, 132)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'BP Diastolic',
+                        data: bpDiaData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.7)',
+                        borderColor: 'rgb(54, 162, 235)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Heart Rate',
+                        data: hrData,
+                        backgroundColor: 'rgba(255, 205, 86, 0.7)',
+                        borderColor: 'rgb(255, 205, 86)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Glucose',
+                        data: glucoseData,
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)',
+                        borderColor: 'rgb(75, 192, 192)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Weight (kg)',
+                        data: weightData,
+                        backgroundColor: 'rgba(153, 102, 255, 0.7)',
+                        borderColor: 'rgb(153, 102, 255)',
+                        borderWidth: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    })
+    .catch(err => {
+        tableContainer.innerHTML = "<p style='color:red;'>Failed to load health trends.</p>";
+        console.error("loadHealthTrends error:", err);
+    });
 }
 
 </script>

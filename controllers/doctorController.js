@@ -62,7 +62,8 @@ exports.getAllDoctors = (req, res) => {
     db.query(
         `SELECT d.id, d.specialization, d.availability, u.name
          FROM doctors d
-         JOIN users u ON d.user_id = u.id`,
+         JOIN users u ON d.user_id = u.id
+         WHERE d.is_verified = 1`,
         (err, result) => {
             if (err) return res.status(500).json({ error: err.message });
             res.json(result);

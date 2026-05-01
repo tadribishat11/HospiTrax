@@ -49,6 +49,8 @@ const ratingRoutes      = require("./routes/ratingRoutes"); // NEW
 const prescriptionRoutes = require("./routes/prescriptionRoutes"); // NEW
 const scheduleRoutes    = require("./routes/scheduleRoutes"); // NEW
 const slotRoutes        = require("./routes/slotRoutes"); // NEW
+const adminRoutes       = require("./routes/adminRoutes"); // ADMIN COMMAND CENTER
+const vitalsRoutes      = require("./routes/vitalsRoutes"); // VITAL SIGNS
 
 app.use("/auth",         authRoutes);
 app.use("/appointments", appointmentRoutes);
@@ -58,6 +60,8 @@ app.use("/ratings",      ratingRoutes); // NEW — /ratings/add, /ratings/doctor
 app.use("/prescriptions", prescriptionRoutes); // NEW
 app.use("/schedule",     scheduleRoutes); // NEW
 app.use("/slots",        slotRoutes); // NEW
+app.use("/admin",        adminRoutes); // ADMIN COMMAND CENTER
+app.use("/vitals",       vitalsRoutes); // VITAL SIGNS
 
 // ================= ROOT =================
 app.get("/", (req, res) => {

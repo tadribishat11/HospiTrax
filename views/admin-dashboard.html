@@ -1,56 +1,523 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Command Center</title>
     <link rel="stylesheet" href="/css/style.css">
-</head>
+    <style>
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .bg-green { background: #28a745; color: white; }
+        .bg-red { background: #dc3545; color: white; }
+        .bg-yellow { background: #ffc107; color: black; }
+        .bg-blue { background: #007bff; color: white; }
+        .bg-gray { background: #6c757d; color: white; }
 
+        .dashboard-section { display: none; }
+        .dashboard-section.active { display: block; }
+        
+        .action-btn {
+            padding: 5px 10px;
+            margin: 2px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-edit { background: #ffc107; }
+        .btn-delete { background: #dc3545; color: white; }
+        .btn-verify { background: #28a745; color: white; }
+        .btn-unverify { background: #6c757d; color: white; }
+
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            flex: 1;
+            min-width: 150px;
+        }
+        .stat-card h3 { margin: 0; color: #666; font-size: 14px; }
+        .stat-card .value { font-size: 24px; font-weight: bold; margin-top: 10px; color: #333; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 400px;
+            max-width: 90%;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    </style>
+</head>
 <body>
 
 <div class="container">
-
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <div class="sidebar">
-        <h2>HospiTraX</h2>
-        <a href="/admin">Dashboard</a>
-        <a href="#">Manage Users</a>
-        <a href="#">Reports</a>
-        <a href="/login">Logout</a>
+        <h2>Hospi<span>TraX</span></h2>
+        <p style="text-align: center; font-size: 14px; margin-bottom: 20px;">Admin Command Center</p>
+        <a href="#" onclick="showSection('overview')">Overview</a>
+        <a href="#" onclick="showSection('users')">Manage Users</a>
+        <a href="#" onclick="showSection('appointments')">Appointments</a>
+        <a href="#" onclick="showSection('analytics')">Analytics</a>
+        <a href="#" onclick="showSection('audit')">Audit Log</a>
+        <a href="#" onclick="logout()" style="margin-top: 20px; background: #dc3545;">Logout</a>
     </div>
 
-    <!-- MAIN CONTENT -->
+    <!-- Main Content -->
     <div class="main">
         <div class="header">
-            <h2>Admin Dashboard</h2>
+            <h2 id="section-title">Overview</h2>
+            <p>Welcome, <span id="adminName">Admin</span></p>
         </div>
 
-        <!-- CARDS -->
-        <div class="cards">
-            <div class="card">
-                <h3>Total Patients</h3>
-                <p>120</p>
+        <!-- OVERVIEW SECTION -->
+        <div id="overview" class="dashboard-section active">
+            <div class="cards" id="kpiCards" style="margin-bottom: 20px;">
+                <!-- Filled by JS -->
             </div>
             <div class="card">
-                <h3>Total Doctors</h3>
-                <p>25</p>
+                <h3>Live Queue Monitor</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Doctor</th>
+                            <th>Specialization</th>
+                            <th>Waiting</th>
+                            <th>In Progress</th>
+                            <th>Emergencies</th>
+                        </tr>
+                    </thead>
+                    <tbody id="liveQueueTableBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- TABLE -->
-        <h3>Manage Users</h3>
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Role</th>
-            </tr>
-            <tr>
-                <td>John</td>
-                <td>Patient</td>
-            </tr>
-        </table>
+        <!-- USERS SECTION -->
+        <div id="users" class="dashboard-section">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3>User Directory</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status / Verified</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- APPOINTMENTS SECTION -->
+        <div id="appointments" class="dashboard-section">
+            <div class="card">
+                <h3>All Appointments</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>Patient</th>
+                            <th>Doctor</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="appointmentsTableBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ANALYTICS SECTION -->
+        <div id="analytics" class="dashboard-section">
+            <div class="cards">
+                <div class="card">
+                    <h3>Wait Times by Doctor</h3>
+                    <table>
+                        <thead><tr><th>Doctor</th><th>Avg Wait (mins)</th><th>Appointments</th></tr></thead>
+                        <tbody id="waitTimesTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h3>Specialization Demand</h3>
+                    <table>
+                        <thead><tr><th>Specialization</th><th>Appointments</th><th>Doctors</th></tr></thead>
+                        <tbody id="specsTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- AUDIT LOG SECTION -->
+        <div id="audit" class="dashboard-section">
+            <div class="card">
+                <h3>System Audit Log</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Admin</th>
+                            <th>Action</th>
+                            <th>Target</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTableBody">
+                        <!-- Filled by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
-
 </div>
+
+<!-- Modals -->
+<div id="editUserModal" class="modal">
+    <div class="modal-content">
+        <h3>Edit User</h3>
+        <input type="hidden" id="editUserId">
+        <div class="form-group">
+            <label>Name</label>
+            <input type="text" id="editUserName">
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="editUserEmail">
+        </div>
+        <button class="action-btn btn-verify" onclick="saveUserEdit()">Save Changes</button>
+        <button class="action-btn btn-unverify" onclick="closeModal('editUserModal')">Cancel</button>
+    </div>
+</div>
+
+<div id="resetPasswordModal" class="modal">
+    <div class="modal-content">
+        <h3>Reset Password</h3>
+        <input type="hidden" id="resetUserId">
+        <div class="form-group">
+            <label>New Password</label>
+            <input type="password" id="newPassword">
+        </div>
+        <button class="action-btn btn-verify" onclick="submitPasswordReset()">Reset</button>
+        <button class="action-btn btn-unverify" onclick="closeModal('resetPasswordModal')">Cancel</button>
+    </div>
+</div>
+
+<script>
+    const adminId = sessionStorage.getItem("userId") || 1; // Fallback for testing
+    let refreshInterval;
+
+    function init() {
+        if (sessionStorage.getItem("role") !== "admin" && sessionStorage.getItem("role")) {
+            alert("Unauthorized");
+            window.location.href = "/login";
+            return;
+        }
+        showSection('overview');
+    }
+
+    function showSection(sectionId) {
+        document.querySelectorAll('.dashboard-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+        document.getElementById('section-title').innerText = sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+        
+        clearInterval(refreshInterval);
+
+        if (sectionId === 'overview') {
+            loadOverview();
+            loadLiveQueues();
+            refreshInterval = setInterval(loadLiveQueues, 10000); // refresh every 10s
+        } else if (sectionId === 'users') {
+            loadUsers();
+        } else if (sectionId === 'appointments') {
+            loadAppointments();
+        } else if (sectionId === 'analytics') {
+            loadAnalytics();
+        } else if (sectionId === 'audit') {
+            loadAuditLog();
+        }
+    }
+
+    function logout() {
+        sessionStorage.clear();
+        window.location.href = "/login";
+    }
+
+    // --- OVERVIEW ---
+    async function loadOverview() {
+        try {
+            const res = await fetch("/admin/api/overview");
+            const data = await res.json();
+            if (data.success) {
+                const kpi = data.overview;
+                document.getElementById('kpiCards').innerHTML = `
+                    <div class="stat-card"><h3>Total Patients</h3><div class="value">${kpi.total_patients}</div></div>
+                    <div class="stat-card"><h3>Total Doctors</h3><div class="value">${kpi.total_doctors}</div></div>
+                    <div class="stat-card"><h3>Appts Today</h3><div class="value">${kpi.today_appointments}</div></div>
+                    <div class="stat-card"><h3>Pending Verification</h3><div class="value" style="color:red">${kpi.pending_verifications}</div></div>
+                `;
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadLiveQueues() {
+        try {
+            const res = await fetch("/admin/api/live-queues");
+            const data = await res.json();
+            if (data.success) {
+                const tbody = document.getElementById('liveQueueTableBody');
+                tbody.innerHTML = '';
+                data.queues.forEach(q => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>Dr. ${q.doctor_name}</td>
+                            <td>${q.specialization}</td>
+                            <td><span class="badge bg-yellow">${q.waiting}</span></td>
+                            <td><span class="badge bg-blue">${q.in_progress}</span></td>
+                            <td><span class="badge bg-red">${q.emergencies}</span></td>
+                        </tr>
+                    `;
+                });
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    // --- USERS ---
+    async function loadUsers() {
+        try {
+            const res = await fetch("/admin/api/users");
+            const data = await res.json();
+            if (data.success) {
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = '';
+                data.users.forEach(u => {
+                    let roleBadge = u.role === 'admin' ? 'bg-gray' : (u.role === 'doctor' ? 'bg-blue' : 'bg-green');
+                    let statusHtml = '';
+                    if (u.role === 'doctor') {
+                        statusHtml = u.is_verified 
+                            ? `<span class="badge bg-green">Verified</span>`
+                            : `<span class="badge bg-red">Pending Approval</span>`;
+                    } else {
+                        statusHtml = `<span class="badge bg-green">Active</span>`;
+                    }
+
+                    let verifyBtn = '';
+                    if (u.role === 'doctor') {
+                        verifyBtn = u.is_verified
+                            ? `<button class="action-btn btn-unverify" onclick="toggleVerify(${u.id}, false)">Revoke</button>`
+                            : `<button class="action-btn btn-verify" onclick="toggleVerify(${u.id}, true)">Approve</button>`;
+                    }
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${u.name}</td>
+                            <td>${u.email}</td>
+                            <td><span class="badge ${roleBadge}">${u.role.toUpperCase()}</span></td>
+                            <td>${statusHtml}</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="openEditUser(${u.id}, '${u.name}', '${u.email}')">Edit</button>
+                                <button class="action-btn btn-edit" onclick="openResetPassword(${u.id})">Pwd</button>
+                                ${verifyBtn}
+                                ${u.role !== 'admin' ? `<button class="action-btn btn-delete" onclick="deleteUser(${u.id})">Del</button>` : ''}
+                            </td>
+                        </tr>
+                    `;
+                });
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    async function toggleVerify(userId, isVerified) {
+        if (!confirm(`Are you sure you want to ${isVerified ? 'approve' : 'revoke'} this doctor?`)) return;
+        try {
+            await fetch(`/admin/api/doctors/${userId}/verify`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ is_verified: isVerified, admin_user_id: adminId })
+            });
+            loadUsers();
+        } catch (e) { console.error(e); }
+    }
+
+    async function deleteUser(userId) {
+        if (!confirm("Delete this user? This will cascade delete their data and cancel future appointments.")) return;
+        try {
+            await fetch(`/admin/api/users/${userId}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ admin_user_id: adminId })
+            });
+            loadUsers();
+        } catch (e) { console.error(e); }
+    }
+
+    function openEditUser(id, name, email) {
+        document.getElementById('editUserId').value = id;
+        document.getElementById('editUserName').value = name;
+        document.getElementById('editUserEmail').value = email;
+        document.getElementById('editUserModal').style.display = 'flex';
+    }
+
+    async function saveUserEdit() {
+        const id = document.getElementById('editUserId').value;
+        const name = document.getElementById('editUserName').value;
+        const email = document.getElementById('editUserEmail').value;
+        try {
+            await fetch(`/admin/api/users/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, email, admin_user_id: adminId })
+            });
+            closeModal('editUserModal');
+            loadUsers();
+        } catch (e) { console.error(e); }
+    }
+
+    function openResetPassword(id) {
+        document.getElementById('resetUserId').value = id;
+        document.getElementById('newPassword').value = '';
+        document.getElementById('resetPasswordModal').style.display = 'flex';
+    }
+
+    async function submitPasswordReset() {
+        const id = document.getElementById('resetUserId').value;
+        const pwd = document.getElementById('newPassword').value;
+        if(pwd.length < 6) { alert("Password too short"); return; }
+        try {
+            await fetch(`/admin/api/users/${id}/reset-password`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ new_password: pwd, admin_user_id: adminId })
+            });
+            alert("Password reset!");
+            closeModal('resetPasswordModal');
+        } catch (e) { console.error(e); }
+    }
+
+    function closeModal(id) {
+        document.getElementById(id).style.display = 'none';
+    }
+
+    // --- APPOINTMENTS ---
+    async function loadAppointments() {
+        try {
+            const res = await fetch("/admin/api/appointments");
+            const data = await res.json();
+            if (data.success) {
+                const tbody = document.getElementById('appointmentsTableBody');
+                tbody.innerHTML = '';
+                data.appointments.forEach(a => {
+                    let pBadge = a.priority === 'emergency' ? 'bg-red' : 'bg-gray';
+                    let sBadge = a.status === 'cancelled' ? 'bg-red' : (a.status === 'completed' ? 'bg-green' : 'bg-blue');
+                    let cancelBtn = ['scheduled','confirmed','in-progress'].includes(a.status) 
+                        ? `<button class="action-btn btn-delete" onclick="cancelAppointment(${a.id})">Force Cancel</button>` 
+                        : '';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${new Date(a.date).toLocaleDateString()} ${a.time}</td>
+                            <td>${a.patient_name}</td>
+                            <td>Dr. ${a.doctor_name}</td>
+                            <td><span class="badge ${sBadge}">${a.status}</span></td>
+                            <td><span class="badge ${pBadge}">${a.priority}</span></td>
+                            <td>${cancelBtn}</td>
+                        </tr>
+                    `;
+                });
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    async function cancelAppointment(id) {
+        if(!confirm("Force cancel this appointment? Waitlist reassignment will trigger automatically.")) return;
+        try {
+            await fetch(`/admin/api/appointments/${id}/cancel`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ admin_user_id: adminId })
+            });
+            loadAppointments();
+        } catch (e) { console.error(e); }
+    }
+
+    // --- ANALYTICS ---
+    async function loadAnalytics() {
+        try {
+            let res = await fetch("/admin/api/analytics/wait-times");
+            let data = await res.json();
+            if(data.success) {
+                const tb = document.getElementById('waitTimesTableBody');
+                tb.innerHTML = '';
+                data.wait_times.forEach(d => {
+                    tb.innerHTML += `<tr><td>Dr. ${d.doctor_name}</td><td>${d.avg_estimated_wait || 0}</td><td>${d.total_appointments}</td></tr>`;
+                });
+            }
+
+            res = await fetch("/admin/api/analytics/specializations");
+            data = await res.json();
+            if(data.success) {
+                const tb = document.getElementById('specsTableBody');
+                tb.innerHTML = '';
+                data.specializations.forEach(s => {
+                    tb.innerHTML += `<tr><td>${s.specialization}</td><td>${s.total_appointments}</td><td>${s.doctor_count}</td></tr>`;
+                });
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    // --- AUDIT LOG ---
+    async function loadAuditLog() {
+        try {
+            const res = await fetch("/admin/api/audit-log");
+            const data = await res.json();
+            if (data.success) {
+                const tbody = document.getElementById('auditTableBody');
+                tbody.innerHTML = '';
+                data.logs.forEach(l => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${new Date(l.created_at).toLocaleString()}</td>
+                            <td>${l.user_name || 'System'}</td>
+                            <td><strong>${l.action}</strong></td>
+                            <td>${l.target_type} #${l.target_id}</td>
+                            <td>${l.details || ''}</td>
+                        </tr>
+                    `;
+                });
+            }
+        } catch (e) { console.error(e); }
+    }
+
+    window.onload = init;
+</script>
 
 </body>
 </html>

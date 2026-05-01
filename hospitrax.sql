@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Database: `hospitrax`
 --
+CREATE DATABASE IF NOT EXISTS `hospitrax`;
+USE `hospitrax`;
 
 -- --------------------------------------------------------
 
@@ -372,7 +374,7 @@ COMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
 
---Feature :Doctor Schedule Slots(nafi)
+-- Feature: Doctor Schedule Slots (nafi)
 CREATE TABLE IF NOT EXISTS `doctor_schedule_slots` (
   `id`          int(11)      NOT NULL AUTO_INCREMENT,
   `doctor_id`   int(11)      NOT NULL,
@@ -393,8 +395,8 @@ INSERT INTO `doctor_schedule_slots` (`doctor_id`, `day_of_week`, `start_time`, `
   (4, 'Sunday',    '09:00:00', '12:00:00'),
   (4, 'Sunday',    '16:00:00', '19:00:00'),
   (4, 'Tuesday',   '10:00:00', '15:00:00');
-  ------------------------------------------------
-  --FEATURE : Enhanced Prescriptions (nafi)
+-- ------------------------------------------------
+-- FEATURE: Enhanced Prescriptions (nafi)
 
 ALTER TABLE `prescriptions`
   ADD COLUMN IF NOT EXISTS `doctor_id`   int(11)   DEFAULT NULL    AFTER `details`,
@@ -408,8 +410,8 @@ JOIN   `appointments` a ON a.id = p.appointment_id
 SET    p.doctor_id  = a.doctor_id,
        p.patient_id = a.patient_id
 WHERE  p.doctor_id IS NULL;
------------------------------------------------------
---FEATURE : Slot Waitlist & Reassignment Log
+-- ---------------------------------------------------
+-- FEATURE: Slot Waitlist & Reassignment Log
 
 CREATE TABLE IF NOT EXISTS `slot_waitlist` (
   `id`             int(11)    NOT NULL AUTO_INCREMENT,
@@ -432,4 +434,49 @@ CREATE TABLE IF NOT EXISTS `slot_reassignments` (
   `reassigned_at`    timestamp  NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
------------------------------------------------------------------
+-- ---------------------------------------------------------------
+
+-- ---------------------------------------------------------------
+-- ADMIN COMMAND CENTER: Audit Log table
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `audit_log` (
+  `id`          INT(11)      NOT NULL AUTO_INCREMENT,
+  `user_id`     INT(11)      DEFAULT NULL,
+  `user_name`   VARCHAR(100) DEFAULT NULL,
+  `action`      VARCHAR(100) NOT NULL,
+  `target_type` VARCHAR(50)  DEFAULT NULL,
+  `target_id`   INT(11)      DEFAULT NULL,
+  `details`     TEXT         DEFAULT NULL,
+  `created_at`  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_audit_user` (`user_id`),
+  KEY `idx_audit_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ---------------------------------------------------------------
+-- ADMIN COMMAND CENTER: Doctor verification column
+-- Defaults to 1 so existing doctors remain active
+-- ---------------------------------------------------------------
+ALTER TABLE `doctors`
+  ADD COLUMN IF NOT EXISTS `is_verified` TINYINT(1) NOT NULL DEFAULT 1;
+
+-- ---------------------------------------------------------------
+-- FEATURE: Vital Signs Visualization
+-- ---------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS `vital_signs` (
+  `id`              INT(11)      NOT NULL AUTO_INCREMENT,
+  `patient_id`      INT(11)      NOT NULL,
+  `doctor_id`       INT(11)      NOT NULL,
+  `appointment_id`  INT(11)      DEFAULT NULL,
+  `blood_pressure_systolic`  INT(11) DEFAULT NULL,
+  `blood_pressure_diastolic` INT(11) DEFAULT NULL,
+  `heart_rate`      INT(11)      DEFAULT NULL,
+  `temperature`     DECIMAL(4,1) DEFAULT NULL,
+  `blood_glucose`   INT(11)      DEFAULT NULL,
+  `weight`          DECIMAL(5,1) DEFAULT NULL,
+  `notes`           TEXT         DEFAULT NULL,
+  `recorded_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_vitals_patient` (`patient_id`),
+  KEY `idx_vitals_doctor` (`doctor_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

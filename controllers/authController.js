@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
                         await Patient.create({ user_id: userId, age, gender });
                     }
                     if (role === "doctor") {
-                        await Doctor.create({ user_id: userId, specialization, availability });
+                        await Doctor.create({ user_id: userId, specialization, availability, is_verified: 0 });
                     }
                     res.redirect("/login");
                 } catch (err) {
