@@ -62,7 +62,9 @@ The system supports three user roles: **Patients**, **Doctors**, and **Admins**,
 - 👥 View daily patient queue
 - ⭐ Patient ratings and feedback
 - 📈 Daily patient count and analytics
-- 💊 Prescription management
+- 💊 **Enhanced Prescription Management**: Digital prescriptions with structured medicine lists
+- 📅 **Weekly Availability Schedule**: Manage recurring time slots for each day of the week
+- 📊 **Vital Signs Tracking**: Record and monitor patient health metrics (BP, Heart Rate, etc.)
 - 🔔 Real-time appointment updates
 
 ### 5. **Patient Dashboard**
@@ -73,12 +75,15 @@ The system supports three user roles: **Patients**, **Doctors**, and **Admins**,
 - 🗑️ Cancel appointments
 - 📚 Access medical records and lab reports
 - ⭐ Rate doctors and leave feedback
+- 📈 **My Health Trends**: Visualize vital signs history via interactive charts
+- ⏳ **Slot Waitlist**: Join a waitlist for preferred dates/times when slots are full
 
-### 6. **Admin Dashboard**
-- 👥 Manage users (patients/doctors)
-- 📊 System analytics and reports
-- 🔍 Monitor all appointments and queues
-- 🏥 Hospital-wide statistics
+### 6. **Admin Dashboard (Command Center)**
+- 👥 **User Management**: Manage patients and doctors with verification workflow
+- 🛡️ **Doctor Verification**: Approve/reject new doctor registrations
+- 📊 **Hospital-wide Analytics**: Real-time stats on appointments, users, and ratings
+- 🔍 **Audit Logs**: Track system-wide actions for security and accountability
+- 🏦 **System Monitoring**: View all appointments and queue statuses across the hospital
 
 ---
 
@@ -117,20 +122,32 @@ hospitrax/
 ├── config/
 │   └── db.js                       # MySQL connection
 ├── controllers/
+│   ├── adminController.js          # Admin command center logic
 │   ├── appointmentController.js    # Appointment logic
 │   ├── authController.js           # Auth & registration
 │   ├── doctorController.js         # Doctor operations
-│   └── ratingController.js         # Doctor ratings
+│   ├── prescriptionController.js   # Enhanced prescriptions
+│   ├── ratingController.js         # Doctor ratings
+│   ├── scheduleController.js       # Weekly availability
+│   ├── slotController.js           # Slot waitlist & booking
+│   ├── slotReassignController.js   # Automatic slot reassignment
+│   └── vitalsController.js         # Vital signs tracking
 ├── models/
 │   ├── appointment.js              # Appointment model
 │   ├── doctor.js                   # Doctor model
 │   ├── patient.js                  # Patient model
 │   └── user.js                     # User model
 ├── routes/
-│   ├── authRoutes.js               # Auth endpoints
+│   ├── adminRoutes.js              # Admin endpoints
 │   ├── appointmentRoutes.js        # Appointment endpoints
+│   ├── authRoutes.js               # Auth endpoints
 │   ├── doctorRoutes.js             # Doctor endpoints
-│   └── medicalRoutes.js            # Medical records & lab reports
+│   ├── medicalRoutes.js            # Medical records & lab reports
+│   ├── prescriptionRoutes.js       # Prescription endpoints
+│   ├── ratingRoutes.js             # Rating endpoints
+│   ├── scheduleRoutes.js           # Schedule endpoints
+│   ├── slotRoutes.js               # Slot/Waitlist endpoints
+│   └── vitalsRoutes.js             # Vital signs endpoints
 ├── views/
 │   ├── login.html                  # Login page
 │   ├── register.html               # Registration page
@@ -145,7 +162,7 @@ hospitrax/
 │   └── uploads/
 │       └── lab-reports/            # Lab report storage
 ├── package.json
-└── hospitrax.sql                   # Database schema
+└── hospitrax.sql                   # Updated database schema
 ```
 
 ---
@@ -187,12 +204,20 @@ Or use GUI tools like phpMyAdmin:
 
 ### **Step 4: Configure Database Connection**
 
-Update `config/db.js`:
+Create a `.env` file in the root directory:
+```env
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=your_password
+DB_NAME=hospitrax
+```
+
+Alternatively, you can update `config/db.js` directly:
 ```javascript
-const db = mysql.createConnection({
+const db = mysql.createPool({
     host: "localhost",
-    user: "root",           // Your MySQL username
-    password: "your_password", // Your MySQL password
+    user: "root",
+    password: "your_password",
     database: "hospitrax"
 });
 ```
@@ -428,7 +453,7 @@ Content-Type: application/json
 }
 ```
 
-#### Set Doctor Availability
+#### Set Doctor Availability (Simple)
 ```
 POST /doctor/availability
 Content-Type: application/json
@@ -437,6 +462,94 @@ Content-Type: application/json
   "doctor_id": 1,
   "availability": "Monday: 9AM-12PM, Wednesday: 10AM-3PM"
 }
+```
+
+### **Weekly Schedule & Slots**
+
+#### Save Recurring Slot
+```
+POST /schedule/slot
+{
+  "doctor_id": 1,
+  "day_of_week": "Monday",
+  "start_time": "09:00",
+  "end_time": "12:00"
+}
+```
+
+#### Get Doctor Weekly Calendar
+```
+GET /schedule/doctor/:doctor_id
+```
+
+### **Prescriptions (Enhanced)**
+
+#### Save Digital Prescription
+```
+POST /prescriptions/save
+Content-Type: application/json
+
+{
+  "appointment_id": 1,
+  "details": "Patient notes",
+  "medicines": [
+    { "name": "Paracetamol", "dosage": "500mg", "frequency": "3x daily", "duration": "5 days" }
+  ]
+}
+```
+
+#### Get Patient Prescriptions
+```
+GET /prescriptions/patient/:patient_id
+```
+
+### **Vital Signs**
+
+#### Record Vitals
+```
+POST /vitals/add
+{
+  "patient_id": 1,
+  "doctor_id": 2,
+  "appointment_id": 1,
+  "blood_pressure_systolic": 120,
+  "blood_pressure_diastolic": 80,
+  "heart_rate": 72,
+  "temperature": 36.6,
+  "blood_glucose": 95,
+  "weight": 70.5
+}
+```
+
+#### Get Health Trends
+```
+GET /vitals/history/:patient_id
+```
+
+### **Slot Waitlist**
+
+#### Join Waitlist
+```
+POST /slots/waitlist/join
+{
+  "patient_id": 1,
+  "doctor_id": 2,
+  "preferred_date": "2026-05-15",
+  "preferred_time": "10:00"
+}
+```
+
+### **Admin Command Center**
+
+#### Get Hospital Analytics
+```
+GET /admin/analytics
+```
+
+#### Verify Doctor
+```
+PUT /admin/verify-doctor/:doctor_id
+{ "status": "approved" | "rejected" }
 ```
 
 ### **Medical Records & Lab Reports**
@@ -513,6 +626,7 @@ CREATE TABLE doctors (
   specialization VARCHAR(100),
   availability TEXT,
   average_consultation_time INT DEFAULT 15,
+  is_verified TINYINT(1) DEFAULT 1,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
 ```
@@ -594,6 +708,62 @@ CREATE TABLE queue_status (
   last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY unique_doctor_date (doctor_id, date),
   FOREIGN KEY (doctor_id) REFERENCES doctors(id)
+);
+```
+
+### **Vital Signs Table**
+```sql
+CREATE TABLE vital_signs (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  patient_id INT,
+  doctor_id INT,
+  appointment_id INT,
+  blood_pressure_systolic INT,
+  blood_pressure_diastolic INT,
+  heart_rate INT,
+  temperature DECIMAL(4,1),
+  blood_glucose INT,
+  weight DECIMAL(5,1),
+  notes TEXT,
+  recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+### **Doctor Schedule Slots Table**
+```sql
+CREATE TABLE doctor_schedule_slots (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  doctor_id INT,
+  day_of_week ENUM('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'),
+  start_time TIME,
+  end_time TIME,
+  is_active TINYINT(1) DEFAULT 1
+);
+```
+
+### **Slot Waitlist Table**
+```sql
+CREATE TABLE slot_waitlist (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  doctor_id INT,
+  patient_id INT,
+  preferred_date DATE,
+  preferred_time TIME,
+  status ENUM('waiting','assigned','expired') DEFAULT 'waiting'
+);
+```
+
+### **Audit Log Table**
+```sql
+CREATE TABLE audit_log (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  user_id INT,
+  user_name VARCHAR(100),
+  action VARCHAR(100),
+  target_type VARCHAR(50),
+  target_id INT,
+  details TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
@@ -681,8 +851,12 @@ Dashboards refresh every 10 seconds to show:
 - Doctor dashboard and queue management
 - Medical records storage
 - Lab report uploads
-- Doctor availability management
+- Doctor availability management (Simple & Slot-based)
 - Rating/feedback system
+- **Vital signs tracking and visualization (Health Trends)**
+- **Admin Command Center with Audit Logs**
+- **Structured Digital Prescriptions**
+- **Automated Slot Waitlist & Reassignment**
 
 ### 🔄 In Progress
 - Doctor dashboard analytics
