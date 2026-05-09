@@ -977,8 +977,9 @@ function uploadLabReport() {
     }
 
     const formData = new FormData();
-    formData.append("report", fileInput.files[0]);
+    formData.append("labReport", fileInput.files[0]);
     formData.append("patient_id", PATIENT_ID);
+    formData.append("uploaded_by_user_id", PATIENT_ID);
 
     fetch("/api/upload-report", {
         method: "POST",
