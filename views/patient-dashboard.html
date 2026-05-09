@@ -461,6 +461,7 @@
 
         <div class="header">
             <h2>Patient Dashboard</h2>
+            <p id="patientIdBadge" style="color:#1976d2; font-size:13px; font-weight:600; margin-top:2px;"></p>
         </div>
 
         <!-- QUEUE CARDS -->
@@ -650,6 +651,7 @@ function getPatientId() {
 const PATIENT_ID = getPatientId();
 if (!PATIENT_ID) window.location.href = "/login";
 document.getElementById("patient_id").value = PATIENT_ID;
+document.getElementById("patientIdBadge").innerText = `Patient ID: ${PATIENT_ID}`;
 
 // Doctor rating averages — loaded once and reused when building doctor cards
 let doctorAverages = {}; // { doctor_id: { average_rating, total_ratings } }

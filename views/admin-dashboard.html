@@ -331,10 +331,10 @@
                     }
 
                     let verifyBtn = '';
-                    if (u.role === 'doctor') {
+                    if (u.role === 'doctor' && u.doctor_id) {
                         verifyBtn = u.is_verified
-                            ? `<button class="action-btn btn-unverify" onclick="toggleVerify(${u.id}, false)">Revoke</button>`
-                            : `<button class="action-btn btn-verify" onclick="toggleVerify(${u.id}, true)">Approve</button>`;
+                            ? `<button class="action-btn btn-unverify" onclick="toggleVerify(${u.doctor_id}, false)">Revoke</button>`
+                            : `<button class="action-btn btn-verify" onclick="toggleVerify(${u.doctor_id}, true)">Approve</button>`;
                     }
 
                     tbody.innerHTML += `

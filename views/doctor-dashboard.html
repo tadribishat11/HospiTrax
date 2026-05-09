@@ -403,6 +403,7 @@
         <div class="header">
             <h2>Doctor Dashboard</h2>
             <p id="doctorName" style="color:#888; font-size:14px; margin-top:4px;"></p>
+            <p id="doctorIdBadge" style="color:#1976d2; font-size:13px; font-weight:600; margin-top:2px;"></p>
         </div>
 
         <!-- ── TEAMMATE FEATURE 2 & 3: STAT CARDS ── -->
@@ -650,6 +651,8 @@ fetch(`/doctor/me/${USER_ID}`)
 
         document.getElementById("doctorName").innerText =
             `Dr. ${data.doctor.name} — ${data.doctor.specialization}`;
+        document.getElementById("doctorIdBadge").innerText =
+            `Doctor ID: ${DOCTOR_ID}`;
 
         // Now load everything
         loadStats();

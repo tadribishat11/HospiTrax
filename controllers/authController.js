@@ -6,7 +6,7 @@ const db = require("../config/db");
 
 /* ================= REGISTER ================= */
 exports.register = async (req, res) => {
-    const { name, email, password, role, age, gender, specialization, availability } = req.body;
+    const { name, email, password, role, age, gender, specialization } = req.body;
 
     try {
         const hashed = await bcrypt.hash(password, 10);
@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
                         await Patient.create({ user_id: userId, age, gender });
                     }
                     if (role === "doctor") {
-                        await Doctor.create({ user_id: userId, specialization, availability, is_verified: 0 });
+                        await Doctor.create({ user_id: userId, specialization, availability: null, is_verified: 0 });
                     }
                     res.redirect("/login");
                 } catch (err) {
